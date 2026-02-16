@@ -1,5 +1,7 @@
 {
-  "name": "Go Bokaro Cabs - Intercity Cab Service",
-  "description": "A premium, flight-style landing page for Go Bokaro Cabs, providing safe, reliable, and comfortable intercity travel across Jharkhand and beyond.",
-  "requestFramePermissions": []
+  "name": "Go Bokaro Cabs - Premium Intercity Travel",
+  "description": "Premium intercity cab service based in Bokaro Steel City. Safe, reliable, and comfortable travel across Jharkhand, West Bengal, and beyond.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }

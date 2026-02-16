@@ -15,19 +15,44 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Go Bokaro Cabs - Premium Intercity Travel from Bokaro Steel City. Book safe and reliable rides to Ranchi, Kolkata, Jamshedpur and more." />
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Go Bokaro Cabs | Steel City's Finest Cab Service" />
+    <meta property="og:description" content="Safe, premium, and affordable intercity cabs starting from Bokaro." />
+    <meta property="og:image" content="https://res.cloudinary.com/dn6sk8mqh/image/upload/v1771266719/Screenshot_2026-02-16_235537_ru81eo.png" />
+
     <title>Go Bokaro Cabs | Reliable Intercity Travel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --primary-lime: #A3E635;
+        --primary-dark: #65A30D;
+      }
       body { 
         font-family: 'Inter', sans-serif;
         -webkit-tap-highlight-color: transparent;
+        background-color: #ffffff;
       }
       .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); }
-      .primary-gradient { background: linear-gradient(135deg, #A3E635 0%, #65A30D 100%); }
+      .primary-gradient { background: linear-gradient(135deg, var(--primary-lime) 0%, var(--primary-dark) 100%); }
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      
+      /* Subtle animations */
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+      
+      .stagger-1 { animation-delay: 0.1s; }
+      .stagger-2 { animation-delay: 0.2s; }
+      .stagger-3 { animation-delay: 0.3s; }
     </style>
   </head>
   <body class="overflow-x-hidden">
