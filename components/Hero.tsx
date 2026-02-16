@@ -12,172 +12,213 @@ const Hero: React.FC = () => {
     tripType: 'One Way'
   });
 
-  const tripTypes: TripType[] = ['One Way', 'Round Trip', 'Local Rental', 'Event Cabs'];
+  const tripTypes: { id: TripType; icon: string; label: string }[] = [
+    { id: 'One Way', icon: 'fa-arrow-right', label: 'One Way' },
+    { id: 'Round Trip', icon: 'fa-exchange-alt', label: 'Round Trip' },
+    { id: 'Local Rental', icon: 'fa-clock', label: 'Rentals' },
+    { id: 'Event Cabs', icon: 'fa-users', label: 'Events' }
+  ];
 
   const handleBooking = (e: React.FormEvent) => {
     e.preventDefault();
     if (!booking.to) {
-      alert("Please select a destination");
+      alert("Please select your destination city.");
       return;
     }
-    const text = `Namaste Go Bokaro Cabs! I'd like to book a ${booking.tripType} from ${booking.from} to ${booking.to} on ${booking.date} around ${booking.time}. Please provide details.`;
+    const text = `Namaste Go Bokaro Cabs! I'd like to book a ${booking.tripType} from ${booking.from} to ${booking.to} on ${booking.date} at ${booking.time}. Please provide a quote.`;
     window.open(`${WHATSAPP_LINK}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
-    <section className="relative min-h-[95vh] flex items-center pt-24 pb-12 overflow-hidden">
-      {/* Dynamic Background */}
+    <section className="relative min-h-screen flex flex-col items-center justify-center pt-20 overflow-hidden">
+      {/* Cinematic Background Layer */}
       <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-white z-10"></div>
         <img 
-          src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=2000" 
-          alt="Premium Highway Journey" 
-          className="w-full h-full object-cover object-center scale-105 animate-[pulse_10s_infinite_alternate]"
+          src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=2000" 
+          alt="Luxury Highway Travel" 
+          className="w-full h-full object-cover object-center scale-110 animate-[pulse_15s_infinite_alternate]"
         />
-        <div className="absolute inset-0 bg-black/60 md:bg-black/30"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/60 lg:bg-gradient-to-r lg:from-black lg:via-black/50 lg:to-transparent"></div>
       </div>
 
-      <div className="container mx-auto z-10 px-4 md:px-8 xl:px-12">
-        <div className="grid lg:grid-cols-12 gap-12 items-center">
-          
-          {/* Hero Branding */}
-          <div className="lg:col-span-5 text-white text-center lg:text-left flex flex-col items-center lg:items-start animate-fade-in">
-            <div className="inline-flex items-center gap-2 bg-[#A3E635] text-black px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black tracking-[0.2em] mb-8 shadow-xl">
-              <span className="w-2 h-2 bg-black rounded-full animate-pulse"></span>
-              STEEL CITY'S PREMIUM CHOICE
-            </div>
-            
-            <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-8xl font-black mb-6 leading-[1] tracking-tighter">
-              Bokaro's <br className="hidden sm:block"/>
-              <span className="text-[#A3E635]">Elite</span> Way <br className="hidden sm:block"/>
-              to Travel.
-            </h1>
-            
-            <p className="text-base md:text-xl text-gray-200 mb-10 max-w-lg font-medium leading-relaxed">
-              Why settle for less? Experience intercity travel redefined with professional pilots and spotless vehicles.
-            </p>
-            
-            <div className="flex flex-wrap justify-center lg:justify-start gap-4">
-              <div className="flex items-center gap-3 bg-white/10 border border-white/20 px-5 py-2.5 rounded-2xl backdrop-blur-md">
-                <i className="fas fa-shield-check text-[#A3E635]"></i>
-                <span className="text-xs font-bold uppercase tracking-widest">Verified Pilots</span>
-              </div>
-              <div className="flex items-center gap-3 bg-white/10 border border-white/20 px-5 py-2.5 rounded-2xl backdrop-blur-md">
-                <i className="fas fa-clock text-[#A3E635]"></i>
-                <span className="text-xs font-bold uppercase tracking-widest">On-Time Always</span>
-              </div>
-            </div>
+      {/* Content Container */}
+      <div className="container mx-auto z-20 px-4 md:px-6 lg:px-8">
+        
+        {/* Title Area - Flight Portal Style */}
+        <div className="text-center mb-8 md:mb-12 animate-fade-in">
+          <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full mb-6 shadow-2xl">
+            <span className="flex h-2 w-2 rounded-full bg-[#A3E635] animate-ping"></span>
+            <span className="text-[10px] md:text-xs font-black tracking-[0.2em] text-white uppercase">Steel City's #1 Choice</span>
           </div>
+          <h1 className="text-4xl md:text-6xl lg:text-8xl font-black text-white tracking-tighter leading-tight mb-4">
+            Fly on Road with <br/>
+            <span className="text-[#A3E635]">Go Bokaro Cabs.</span>
+          </h1>
+          <p className="text-gray-300 text-sm md:text-xl max-w-2xl mx-auto font-medium">
+            Premium intercity travel at the price of a local ride. <br className="hidden md:block"/> Professional pilots, spotless cars, guaranteed safety.
+          </p>
+        </div>
 
-          {/* Booking Engine */}
-          <div className="lg:col-span-7 w-full max-w-2xl mx-auto lg:mx-0 stagger-1 animate-fade-in">
-            <div className="glass rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden border border-white/30">
-              
-              {/* Trip Selection Tabs */}
-              <div className="flex overflow-x-auto scrollbar-hide bg-black/5 backdrop-blur-md">
-                {tripTypes.map((type) => (
-                  <button
-                    key={type}
-                    onClick={() => setBooking(prev => ({ ...prev, tripType: type }))}
-                    className={`flex-1 min-w-[120px] px-6 py-5 text-[10px] font-extrabold uppercase tracking-widest transition-all ${
-                      booking.tripType === type 
-                      ? 'bg-white text-black shadow-lg z-10 border-b-4 border-[#A3E635]' 
-                      : 'text-gray-500 hover:text-black hover:bg-white/40'
-                    }`}
-                  >
-                    {type}
-                  </button>
-                ))}
-              </div>
+        {/* The Flight-Style Booking Engine */}
+        <div className="w-full max-w-6xl mx-auto stagger-1 animate-fade-in">
+          <div className="bg-white rounded-[2rem] md:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.2)] overflow-hidden border border-gray-100">
+            
+            {/* Trip Type Tabs - Simplified for UI/UX */}
+            <div className="flex flex-wrap md:flex-nowrap border-b border-gray-100 bg-gray-50/50">
+              {tripTypes.map((type) => (
+                <button
+                  key={type.id}
+                  onClick={() => setBooking(prev => ({ ...prev, tripType: type.id }))}
+                  className={`flex-1 min-w-[120px] px-6 py-5 flex items-center justify-center gap-3 text-xs font-black uppercase tracking-widest transition-all relative ${
+                    booking.tripType === type.id 
+                    ? 'bg-white text-black' 
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100/50'
+                  }`}
+                >
+                  <i className={`fas ${type.icon} ${booking.tripType === type.id ? 'text-[#A3E635]' : 'text-gray-300'}`}></i>
+                  {type.label}
+                  {booking.tripType === type.id && (
+                    <div className="absolute bottom-0 left-0 w-full h-1 bg-[#A3E635]"></div>
+                  )}
+                </button>
+              ))}
+            </div>
 
-              {/* Booking Form */}
-              <form onSubmit={handleBooking} className="bg-white p-6 md:p-10 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
-                  
-                  {/* From Field */}
-                  <div className="relative">
-                    <label className="text-[10px] font-black text-gray-400 uppercase absolute top-3 left-12 z-10 tracking-widest">Departure</label>
-                    <div className="flex items-center border-2 border-gray-100 rounded-2xl p-4 pt-8 bg-gray-50/50 group">
-                      <i className="fas fa-location-arrow text-[#A3E635] w-6 text-xl"></i>
+            {/* Main Booking Form */}
+            <form onSubmit={handleBooking} className="p-4 md:p-8 lg:p-10">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+                
+                {/* From Section */}
+                <div className="lg:col-span-3 space-y-2 group">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">From</label>
+                  <div className="flex items-center bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 group-focus-within:border-black transition-all">
+                    <i className="fas fa-plane-departure text-gray-300 mr-4 text-lg"></i>
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-bold text-lime-600 leading-none mb-1">CITY CENTER</span>
                       <input 
                         type="text" 
                         value={booking.from}
                         readOnly
-                        className="w-full bg-transparent focus:outline-none font-black text-gray-900 text-lg md:text-xl"
+                        className="bg-transparent font-black text-gray-900 text-lg w-full focus:outline-none"
                       />
                     </div>
                   </div>
+                </div>
 
-                  {/* To Field */}
-                  <div className="relative">
-                    <label className="text-[10px] font-black text-gray-400 uppercase absolute top-3 left-12 z-10 tracking-widest">Arrival</label>
-                    <div className="flex items-center border-2 border-gray-100 rounded-2xl p-4 pt-8 focus-within:border-black focus-within:bg-white transition-all shadow-sm">
-                      <i className="fas fa-map-marker-alt text-red-500 w-6 text-xl"></i>
+                {/* Swap Icon (Visual Only) */}
+                <div className="hidden lg:flex lg:col-span-1 items-center justify-center pb-5">
+                   <div className="w-10 h-10 rounded-full border border-gray-100 bg-white shadow-sm flex items-center justify-center text-gray-300 hover:text-black transition-colors cursor-pointer rotate-0 hover:rotate-180 duration-500">
+                    <i className="fas fa-exchange-alt"></i>
+                  </div>
+                </div>
+
+                {/* To Section */}
+                <div className="lg:col-span-3 space-y-2 group">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">To</label>
+                  <div className="flex items-center bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 group-focus-within:border-black transition-all">
+                    <i className="fas fa-plane-arrival text-gray-300 mr-4 text-lg"></i>
+                    <div className="flex flex-col w-full">
+                      <span className="text-[9px] font-bold text-gray-400 leading-none mb-1 uppercase tracking-tighter">Choose Destination</span>
                       <select 
                         value={booking.to}
                         onChange={(e) => setBooking(prev => ({ ...prev, to: e.target.value }))}
-                        className="w-full bg-transparent focus:outline-none font-black text-gray-900 text-lg md:text-xl cursor-pointer appearance-none pr-4"
+                        className="bg-transparent font-black text-gray-900 text-lg w-full focus:outline-none cursor-pointer appearance-none"
                         required
                       >
-                        <option value="">Destination City</option>
+                        <option value="">Select City</option>
                         {ROUTES_PRICING.map(route => (
-                          <option key={route.destination} value={route.destination}>
-                            {route.destination}
-                          </option>
+                          <option key={route.destination} value={route.destination}>{route.destination}</option>
                         ))}
                       </select>
                     </div>
                   </div>
+                </div>
 
-                  {/* Date Picker */}
-                  <div className="relative">
-                    <label className="text-[10px] font-black text-gray-400 uppercase absolute top-3 left-12 z-10 tracking-widest">Departure Date</label>
-                    <div className="flex items-center border-2 border-gray-100 rounded-2xl p-4 pt-8 focus-within:border-black transition-all">
-                      <i className="far fa-calendar-check text-blue-500 w-6 text-xl"></i>
+                {/* Date/Time Section */}
+                <div className="lg:col-span-3 grid grid-cols-2 gap-3">
+                  <div className="space-y-2 group">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Date</label>
+                    <div className="flex items-center bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 group-focus-within:border-black transition-all h-[70px]">
                       <input 
                         type="date" 
                         value={booking.date}
                         onChange={(e) => setBooking(prev => ({ ...prev, date: e.target.value }))}
-                        className="w-full bg-transparent focus:outline-none font-black text-gray-900 text-base md:text-lg"
+                        className="bg-transparent font-black text-gray-900 text-sm w-full focus:outline-none"
                         min={new Date().toISOString().split('T')[0]}
                       />
                     </div>
                   </div>
-
-                  {/* Time Picker */}
-                  <div className="relative">
-                    <label className="text-[10px] font-black text-gray-400 uppercase absolute top-3 left-12 z-10 tracking-widest">Time Slot</label>
-                    <div className="flex items-center border-2 border-gray-100 rounded-2xl p-4 pt-8 focus-within:border-black transition-all">
-                      <i className="far fa-clock text-orange-500 w-6 text-xl"></i>
+                  <div className="space-y-2 group">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Time</label>
+                    <div className="flex items-center bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 group-focus-within:border-black transition-all h-[70px]">
                       <input 
                         type="time" 
                         value={booking.time}
                         onChange={(e) => setBooking(prev => ({ ...prev, time: e.target.value }))}
-                        className="w-full bg-transparent focus:outline-none font-black text-gray-900 text-base md:text-lg"
+                        className="bg-transparent font-black text-gray-900 text-sm w-full focus:outline-none"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-8">
-                  <div className="flex items-start gap-4 w-full md:max-w-[320px]">
-                    <div className="w-6 h-6 rounded-full bg-lime-100 flex items-center justify-center flex-shrink-0 mt-1">
-                      <i className="fas fa-info text-[#A3E635] text-[10px]"></i>
-                    </div>
-                    <p className="text-[11px] text-gray-400 font-bold leading-relaxed">
-                      Instant confirmation. All prices include base fare. Tolls, state taxes, and parking are separate.
-                    </p>
-                  </div>
-                  
+                {/* CTA Button */}
+                <div className="lg:col-span-2 pt-4 lg:pt-0">
                   <button 
                     type="submit"
-                    className="w-full md:w-auto primary-gradient text-black px-12 py-5 rounded-2xl font-black tracking-widest shadow-2xl shadow-lime-500/30 transform hover:-translate-y-1 active:scale-95 transition-all text-sm uppercase whitespace-nowrap flex items-center justify-center gap-3"
+                    className="w-full h-[70px] primary-gradient text-black rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:shadow-[0_20px_40px_-10px_rgba(163,230,53,0.4)] transition-all transform active:scale-95 group"
                   >
-                    CONFIRM RIDE <i className="fas fa-chevron-right text-xs"></i>
+                    SEARCH <i className="fas fa-search text-sm group-hover:scale-125 transition-transform"></i>
                   </button>
                 </div>
-              </form>
-            </div>
+              </div>
+
+              {/* Quick Options / Benefits Bar */}
+              <div className="mt-8 pt-8 border-t border-gray-50 flex flex-wrap items-center justify-between gap-6">
+                <div className="flex gap-4 md:gap-8 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-lime-100 flex items-center justify-center text-[#A3E635] text-[10px]">
+                      <i className="fas fa-check"></i>
+                    </div>
+                    <span className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">Fixed Pricing</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-lime-100 flex items-center justify-center text-[#A3E635] text-[10px]">
+                      <i className="fas fa-check"></i>
+                    </div>
+                    <span className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">24/7 Support</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-lime-100 flex items-center justify-center text-[#A3E635] text-[10px]">
+                      <i className="fas fa-check"></i>
+                    </div>
+                    <span className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">Free Cancellation</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2 text-[#A3E635] font-black text-[10px] md:text-xs uppercase tracking-widest px-4 py-2 bg-black rounded-xl">
+                   <i className="fas fa-tags"></i>
+                   Offers available for first ride
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {/* Floating Stat badges - Screen Only (Hidden on small mobile) */}
+        <div className="hidden md:flex justify-center gap-12 mt-16 animate-fade-in stagger-2 opacity-0 [animation-fill-mode:forwards]">
+          <div className="text-center">
+            <h4 className="text-white text-3xl font-black">50,000+</h4>
+            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Trips Completed</p>
+          </div>
+          <div className="w-px h-12 bg-white/10 self-center"></div>
+          <div className="text-center">
+            <h4 className="text-white text-3xl font-black">4.9/5</h4>
+            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Pilot Rating</p>
+          </div>
+          <div className="w-px h-12 bg-white/10 self-center"></div>
+          <div className="text-center">
+            <h4 className="text-white text-3xl font-black">200+</h4>
+            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Verified Cars</p>
           </div>
         </div>
       </div>
