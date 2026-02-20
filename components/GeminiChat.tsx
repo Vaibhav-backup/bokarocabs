@@ -121,7 +121,11 @@ const GeminiChat: React.FC = () => {
         </div>
 
         {/* Messages Area */}
-        <div ref={scrollRef} className="flex-grow overflow-y-auto p-5 space-y-4 bg-gray-50/50 scrollbar-hide">
+        <div 
+          ref={scrollRef} 
+          className="flex-grow overflow-y-auto p-5 space-y-4 bg-gray-50/50 scrollbar-hide"
+          data-lenis-prevent
+        >
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
               <div className={`max-w-[85%] px-5 py-3.5 rounded-2xl text-[13px] leading-relaxed shadow-sm ${

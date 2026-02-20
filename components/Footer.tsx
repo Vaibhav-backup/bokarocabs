@@ -1,14 +1,27 @@
 
 import React from 'react';
-import { CONTACT_PHONE, WHATSAPP_LINK } from '../constants';
+import { CONTACT_PHONE, WHATSAPP_LINK, INSTAGRAM_LINK, FACEBOOK_LINK } from '../constants';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  onPrivacyClick?: () => void;
+  onTermsClick?: () => void;
+  onNavigateHome?: (sectionId?: string) => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ onPrivacyClick, onTermsClick, onNavigateHome }) => {
+  const handleNavClick = (e: React.MouseEvent, id?: string) => {
+    e.preventDefault();
+    if (onNavigateHome) {
+      onNavigateHome(id);
+    }
+  };
+
   return (
     <footer className="bg-black text-white py-16 px-4">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* Brand */}
         <div>
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-6 cursor-pointer" onClick={(e) => handleNavClick(e)}>
             <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden border-2 border-[#A3E635]">
               <img 
                 src="https://res.cloudinary.com/dn6sk8mqh/image/upload/v1771266719/Screenshot_2026-02-16_235537_ru81eo.png" 
@@ -26,10 +39,10 @@ const Footer: React.FC = () => {
             Committed to safety, excellence, and the spirit of Bokaro.
           </p>
           <div className="flex gap-4">
-            <a href="#" className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all">
+            <a href={FACEBOOK_LINK} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all">
               <i className="fab fa-facebook-f"></i>
             </a>
-            <a href="#" className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all">
+            <a href={INSTAGRAM_LINK} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all">
               <i className="fab fa-instagram"></i>
             </a>
             <a href={WHATSAPP_LINK} className="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all">
@@ -42,11 +55,12 @@ const Footer: React.FC = () => {
         <div>
           <h4 className="font-bold text-lg mb-6 uppercase tracking-widest text-[#A3E635]">Services</h4>
           <ul className="space-y-3 text-gray-400 text-sm">
-            <li><a href="#" className="hover:text-white transition-colors">One Way Drops</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Round Trips</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Airport Transfers</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Local Sightseeing</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Corporate Travel</a></li>
+            <li>One Way Drops</li>
+            <li>Round Trips</li>
+            <li>Airport Transfers</li>
+            <li>Local Sightseeing</li>
+            <li>Corporate Travel</li>
+            <li>Marriage Bookings</li>
           </ul>
         </div>
 
@@ -94,8 +108,8 @@ const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-xs">
         <p>© 2024 Go Bokaro Cabs. All rights reserved.</p>
         <div className="flex gap-6">
-          <a href="#" className="hover:text-white">Privacy Policy</a>
-          <a href="#" className="hover:text-white">Terms of Service</a>
+          <button onClick={onPrivacyClick} className="hover:text-white text-left">Privacy Policy</button>
+          <button onClick={onTermsClick} className="hover:text-white text-left">Terms of Service</button>
           <span className="text-[#A3E635] font-bold">Made with Pride in Bokaro</span>
         </div>
       </div>

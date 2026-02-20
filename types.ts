@@ -15,4 +15,5 @@ export interface BookingState {
   date: string;
   time: string;
   tripType: TripType;
+  event?: string;
 }

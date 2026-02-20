@@ -14,3 +14,5 @@ export const ROUTES_PRICING: RoutePrice[] = [
 
 export const CONTACT_PHONE = '8271212333';
 export const WHATSAPP_LINK = `https://wa.me/918271212333`;
+export const INSTAGRAM_LINK = 'https://www.instagram.com/gobokarocabs/';
+export const FACEBOOK_LINK = 'https://www.facebook.com/profile.php?id=61586712680020';
