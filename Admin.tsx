@@ -160,16 +160,48 @@ const Admin: React.FC = () => {
     }, 3000);
   };
 
+  const fetchLeads = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/leads/admin', { headers: { 'Authorization': `Bearer ${token}` } });
+      if (res.ok) setLeads(await res.json());
+    } catch (err) { addNotification('Failed to fetch leads', 'error'); }
+  };
+
+  const fetchRoutes = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/routes/admin', { headers: { 'Authorization': `Bearer ${token}` } });
+      if (res.ok) setRoutes(await res.json());
+    } catch (err) { addNotification('Failed to fetch routes', 'error'); }
+  };
+
+  const fetchCars = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/cars/admin', { headers: { 'Authorization': `Bearer ${token}` } });
+      if (res.ok) setCars(await res.json());
+    } catch (err) { addNotification('Failed to fetch cars', 'error'); }
+  };
+
+  const fetchTours = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/tour-packages/admin', { headers: { 'Authorization': `Bearer ${token}` } });
+      if (res.ok) setTourPackages(await res.json());
+    } catch (err) { addNotification('Failed to fetch tours', 'error'); }
+  };
+
   const fetchData = async () => {
     if (!token) return;
     setLoading(true);
     try {
       const headers = { 'Authorization': `Bearer ${token}` };
       const [leadsRes, routesRes, carsRes, toursRes] = await Promise.all([
-        fetch('/api/admin/leads', { headers }),
-        fetch('/api/admin/routes', { headers }),
-        fetch('/api/admin/cars', { headers }),
-        fetch('/api/admin/tour-packages', { headers })
+        fetch('/api/leads/admin', { headers }),
+        fetch('/api/routes/admin', { headers }),
+        fetch('/api/cars/admin', { headers }),
+        fetch('/api/tour-packages/admin', { headers })
       ]);
 
       if (leadsRes.status === 403 || leadsRes.status === 401) {
@@ -193,7 +225,7 @@ const Admin: React.FC = () => {
 
   const updateLeadStatus = async (id: string, status: string) => {
     try {
-      const response = await fetch(`/api/admin/leads/${id}`, {
+      const response = await fetch(`/api/leads/admin/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -203,7 +235,7 @@ const Admin: React.FC = () => {
       });
       if (response.ok) {
         addNotification('Status updated', 'success');
-        fetchData();
+        fetchLeads();
       }
     } catch (err) {
       addNotification('Failed to update status', 'error');
@@ -214,7 +246,7 @@ const Admin: React.FC = () => {
     e.preventDefault();
     if (!editingRoute) return;
     try {
-      const url = editingRoute.id ? `/api/admin/routes/${editingRoute.id}` : '/api/admin/routes';
+      const url = editingRoute.id ? `/api/routes/admin/${editingRoute.id}` : '/api/routes/admin';
       const method = editingRoute.id ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,
@@ -228,7 +260,7 @@ const Admin: React.FC = () => {
         addNotification(editingRoute.id ? 'Route updated' : 'Route added', 'success');
         setIsRouteModalOpen(false);
         setEditingRoute(null);
-        fetchData();
+        fetchRoutes();
       }
     } catch (err) {
       addNotification('Failed to save route', 'error');
@@ -238,13 +270,13 @@ const Admin: React.FC = () => {
   const handleDeleteRoute = async (id: string) => {
     if (!confirm('Are you sure you want to delete this route?')) return;
     try {
-      const response = await fetch(`/api/admin/routes/${id}`, {
+      const response = await fetch(`/api/routes/admin/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
         addNotification('Route deleted', 'success');
-        fetchData();
+        fetchRoutes();
       } else {
         const err = await response.json();
         addNotification(err.error || 'Failed to delete route', 'error');
@@ -258,7 +290,7 @@ const Admin: React.FC = () => {
     e.preventDefault();
     if (!editingCar) return;
     try {
-      const url = editingCar.id ? `/api/admin/cars/${editingCar.id}` : '/api/admin/cars';
+      const url = editingCar.id ? `/api/cars/admin/${editingCar.id}` : '/api/cars/admin';
       const method = editingCar.id ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,
@@ -272,7 +304,7 @@ const Admin: React.FC = () => {
         addNotification(editingCar.id ? 'Car updated' : 'Car added', 'success');
         setIsCarModalOpen(false);
         setEditingCar(null);
-        fetchData();
+        fetchCars();
       }
     } catch (err) {
       addNotification('Failed to save car', 'error');
@@ -282,13 +314,13 @@ const Admin: React.FC = () => {
   const handleDeleteCar = async (id: string) => {
     if (!confirm('Are you sure you want to delete this car?')) return;
     try {
-      const response = await fetch(`/api/admin/cars/${id}`, {
+      const response = await fetch(`/api/cars/admin/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
         addNotification('Car deleted', 'success');
-        fetchData();
+        fetchCars();
       } else {
         const err = await response.json();
         addNotification(err.error || 'Failed to delete car', 'error');
@@ -302,7 +334,7 @@ const Admin: React.FC = () => {
     e.preventDefault();
     if (!editingTour) return;
     try {
-      const url = editingTour.id ? `/api/admin/tour-packages/${editingTour.id}` : '/api/admin/tour-packages';
+      const url = editingTour.id ? `/api/tour-packages/admin/${editingTour.id}` : '/api/tour-packages/admin';
       const method = editingTour.id ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,
@@ -316,7 +348,7 @@ const Admin: React.FC = () => {
         addNotification(editingTour.id ? 'Tour updated' : 'Tour added', 'success');
         setIsTourModalOpen(false);
         setEditingTour(null);
-        fetchData();
+        fetchTours();
       }
     } catch (err) {
       addNotification('Failed to save tour', 'error');
@@ -326,13 +358,13 @@ const Admin: React.FC = () => {
   const handleDeleteTour = async (id: string) => {
     if (!confirm('Are you sure you want to delete this tour package?')) return;
     try {
-      const response = await fetch(`/api/admin/tour-packages/${id}`, {
+      const response = await fetch(`/api/tour-packages/admin/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
         addNotification('Tour deleted', 'success');
-        fetchData();
+        fetchTours();
       }
     } catch (err) {
       addNotification('Failed to delete tour', 'error');
