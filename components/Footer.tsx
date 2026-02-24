@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { CONTACT_PHONE, WHATSAPP_LINK, INSTAGRAM_LINK, FACEBOOK_LINK } from '../constants';
 
 interface FooterProps {
@@ -8,6 +8,31 @@ interface FooterProps {
 }
 
 const Footer: React.FC<FooterProps> = ({ onNavigateHome }) => {
+  const navigate = useNavigate();
+  const [clickCount, setClickCount] = useState(0);
+  const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    // Secret shortcut logic
+    const newCount = clickCount + 1;
+    setClickCount(newCount);
+
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+    }
+
+    if (newCount >= 5) {
+      setClickCount(0);
+      navigate('/admin');
+    } else {
+      clickTimerRef.current = setTimeout(() => {
+        setClickCount(0);
+      }, 2000); // Reset after 2 seconds of inactivity
+    }
+  };
+
   const handleNavClick = (e: React.MouseEvent, id?: string) => {
     // If we are on home page, just scroll
     if (window.location.pathname === '/') {
@@ -23,7 +48,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigateHome }) => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* Brand */}
         <div>
-          <Link to="/" className="flex items-center gap-3 mb-6 cursor-pointer" onClick={(e) => handleNavClick(e)}>
+          <Link to="/" className="flex items-center gap-3 mb-6 cursor-pointer" onClick={handleLogoClick}>
             <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden border-2 border-[#A3E635]">
               <img 
                 src="https://res.cloudinary.com/dn6sk8mqh/image/upload/v1771266719/Screenshot_2026-02-16_235537_ru81eo.png" 
