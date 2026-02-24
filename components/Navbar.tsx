@@ -54,16 +54,10 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
     <motion.nav 
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-0 w-full z-[100] transition-all duration-500 ${
-        scrolled ? 'py-3' : 'py-6'
-      } px-4 md:px-8`}
+      className="fixed top-0 w-full z-[100] py-4 px-4 md:px-8"
     >
       <div className="max-w-7xl mx-auto">
-        <div className={`relative flex items-center justify-between px-6 py-3 rounded-[2rem] transition-all duration-500 ${
-          scrolled 
-          ? 'bg-white/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.08)]' 
-          : 'bg-black/20 backdrop-blur-sm border border-white/10'
-        }`}>
+        <div className="relative flex items-center justify-between px-6 py-3 rounded-[2rem] bg-white/90 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
           {/* Logo Section */}
           <Link 
             to="/" 
@@ -81,7 +75,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
               />
             </motion.div>
             <div>
-              <h1 className={`text-base md:text-xl font-black tracking-tighter leading-none transition-colors ${scrolled ? 'text-black' : 'text-white'}`}>GO BOKARO</h1>
+              <h1 className="text-base md:text-xl font-black tracking-tighter leading-none text-black">GO BOKARO</h1>
               <p className="text-[8px] md:text-[10px] tracking-[0.2em] text-[#A3E635] font-bold uppercase">Premium Cabs</p>
             </div>
           </Link>
@@ -92,24 +86,24 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
               <button
                 key={link.id}
                 onClick={(e) => handleNavClick(e as any, link.id)}
-                className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-[#A3E635] ${
-                  scrolled ? 'text-gray-500' : 'text-white/70 hover:text-white'
-                }`}
+                className="text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-[#A3E635] text-gray-500"
               >
                 {link.name}
               </button>
             ))}
+            <Link 
+              to="/tours" 
+              className="text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-[#A3E635] text-gray-500"
+            >
+              Tour Packages
+            </Link>
           </div>
 
           {/* CTAs */}
           <div className="flex items-center gap-3">
             <a 
               href={`tel:${CONTACT_PHONE}`}
-              className={`hidden lg:flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                scrolled 
-                ? 'bg-gray-100 text-black hover:bg-black hover:text-white' 
-                : 'bg-white/10 text-white hover:bg-white/20'
-              }`}
+              className="hidden lg:flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all bg-gray-100 text-black hover:bg-black hover:text-white"
             >
               <Phone size={14} />
               <span>{CONTACT_PHONE}</span>
@@ -128,7 +122,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
             {/* Mobile Menu Toggle */}
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`md:hidden p-2 rounded-xl transition-colors ${scrolled ? 'text-black hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}
+              className="md:hidden p-2 rounded-xl transition-colors text-black hover:bg-gray-100"
               aria-label="Toggle Menu"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -155,13 +149,20 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
                 <ChevronRight size={16} className="rotate-180" />
                 Back
               </button>
-              {['Home', ...navLinks.map(l => l.name)].map((name, i) => (
+              {['Home', 'Tour Packages', ...navLinks.map(l => l.name)].map((name, i) => (
                 <motion.button
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
                   key={name}
-                  onClick={(e) => handleNavClick(e as any, name.toLowerCase() === 'home' ? undefined : name.toLowerCase())}
+                  onClick={(e) => {
+                    if (name === 'Tour Packages') {
+                      navigate('/tours');
+                      setIsMenuOpen(false);
+                    } else {
+                      handleNavClick(e as any, name.toLowerCase() === 'home' ? undefined : name.toLowerCase())
+                    }
+                  }}
                   className="text-4xl font-black text-gray-900 flex justify-between items-center group"
                 >
                   {name}

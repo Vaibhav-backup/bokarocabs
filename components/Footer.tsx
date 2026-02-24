@@ -133,7 +133,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigateHome }) => {
       </div>
 
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-xs">
-        <p>© 2024 Go Bokaro Cabs. All rights reserved.</p>
+        <p>2026 © 2024 Go Bokaro Cabs. All rights reserved.</p>
         <div className="flex gap-6">
           <Link to="/privacy" className="hover:text-white text-left">Privacy Policy</Link>
           <Link to="/terms" className="hover:text-white text-left">Terms of Service</Link>

@@ -21,7 +21,9 @@ import {
   TrendingUp,
   Users,
   Calendar,
-  X
+  X,
+  Image as ImageIcon,
+  Map
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -60,6 +62,16 @@ interface Car {
   models: string;
   capacity: string;
   type: string;
+}
+
+interface TourPackage {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  duration: string;
+  image_url?: string;
+  created_at?: string;
 }
 
 interface Notification {
@@ -114,7 +126,8 @@ const Admin: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [routes, setRoutes] = useState<RoutePrice[]>([]);
   const [cars, setCars] = useState<Car[]>([]);
-  const [activeTab, setActiveTab] = useState<'leads' | 'routes' | 'cars'>('leads');
+  const [tourPackages, setTourPackages] = useState<TourPackage[]>([]);
+  const [activeTab, setActiveTab] = useState<'leads' | 'routes' | 'cars' | 'tours'>('leads');
   const [loading, setLoading] = useState(true);
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -126,6 +139,9 @@ const Admin: React.FC = () => {
   const [isCarModalOpen, setIsCarModalOpen] = useState(false);
   const [editingRoute, setEditingRoute] = useState<Partial<RoutePrice> | null>(null);
   const [editingCar, setEditingCar] = useState<Partial<Car> | null>(null);
+  const [editingTour, setEditingTour] = useState<Partial<TourPackage> | null>(null);
+  const [isTourModalOpen, setIsTourModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [token, setToken] = useState<string | null>(localStorage.getItem('admin_token'));
 
@@ -149,10 +165,11 @@ const Admin: React.FC = () => {
     setLoading(true);
     try {
       const headers = { 'Authorization': `Bearer ${token}` };
-      const [leadsRes, routesRes, carsRes] = await Promise.all([
+      const [leadsRes, routesRes, carsRes, toursRes] = await Promise.all([
         fetch('/api/admin/leads', { headers }),
         fetch('/api/admin/routes', { headers }),
-        fetch('/api/admin/cars', { headers })
+        fetch('/api/admin/cars', { headers }),
+        fetch('/api/admin/tour-packages', { headers })
       ]);
 
       if (leadsRes.status === 403 || leadsRes.status === 401) {
@@ -166,6 +183,7 @@ const Admin: React.FC = () => {
       }
       if (routesRes.ok) setRoutes(await routesRes.json());
       if (carsRes.ok) setCars(await carsRes.json());
+      if (toursRes.ok) setTourPackages(await toursRes.json());
     } catch (err) {
       addNotification('Failed to fetch data', 'error');
     } finally {
@@ -273,6 +291,76 @@ const Admin: React.FC = () => {
       }
     } catch (err) {
       addNotification('Network error during deletion', 'error');
+    }
+  };
+
+  const handleSaveTour = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTour) return;
+    try {
+      const response = await fetch('/api/admin/tour-packages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(editingTour)
+      });
+      if (response.ok) {
+        addNotification(editingTour.id ? 'Tour updated' : 'Tour added', 'success');
+        setIsTourModalOpen(false);
+        setEditingTour(null);
+        fetchData();
+      }
+    } catch (err) {
+      addNotification('Failed to save tour', 'error');
+    }
+  };
+
+  const handleDeleteTour = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this tour package?')) return;
+    try {
+      const response = await fetch(`/api/admin/tour-packages/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        addNotification('Tour deleted', 'success');
+        fetchData();
+      }
+    } catch (err) {
+      addNotification('Failed to delete tour', 'error');
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const { url } = await response.json();
+        setEditingTour(prev => ({ ...prev, image_url: url }));
+        addNotification('Image uploaded successfully', 'success');
+      } else {
+        addNotification('Upload failed', 'error');
+      }
+    } catch (err) {
+      addNotification('Upload error', 'error');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -393,6 +481,7 @@ const Admin: React.FC = () => {
             { id: 'leads', label: 'Inquiries', icon: LayoutDashboard },
             { id: 'routes', label: 'Pricing', icon: MapPin },
             { id: 'cars', label: 'Fleet', icon: CarIcon },
+            { id: 'tours', label: 'Tours', icon: Map },
           ].map(item => (
             <button
               key={item.id}
@@ -438,6 +527,7 @@ const Admin: React.FC = () => {
           { id: 'leads', icon: LayoutDashboard },
           { id: 'routes', icon: MapPin },
           { id: 'cars', icon: CarIcon },
+          { id: 'tours', icon: Map },
         ].map(item => (
           <button
             key={item.id}
@@ -458,28 +548,35 @@ const Admin: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
           <div>
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight capitalize">
-              {activeTab === 'leads' ? 'Booking Inquiries' : activeTab === 'routes' ? 'Route Pricing' : 'Fleet Management'}
+              {activeTab === 'leads' ? 'Booking Inquiries' : 
+               activeTab === 'routes' ? 'Route Pricing' : 
+               activeTab === 'cars' ? 'Fleet Management' : 'Tour Packages'}
             </h2>
             <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mt-1">
-              {activeTab === 'leads' ? 'Manage customer requests and status' : activeTab === 'routes' ? 'Update intercity travel fares' : 'Manage available vehicles'}
+              {activeTab === 'leads' ? 'Manage customer requests and status' : 
+               activeTab === 'routes' ? 'Update intercity travel fares' : 
+               activeTab === 'cars' ? 'Manage available vehicles' : 'Create and manage tour packages'}
             </p>
           </div>
           
-          {(activeTab === 'routes' || activeTab === 'cars') && (
+          {(activeTab === 'routes' || activeTab === 'cars' || activeTab === 'tours') && (
             <button 
               onClick={() => {
                 if (activeTab === 'routes') {
                   setEditingRoute({});
                   setIsRouteModalOpen(true);
-                } else {
+                } else if (activeTab === 'cars') {
                   setEditingCar({});
                   setIsCarModalOpen(true);
+                } else if (activeTab === 'tours') {
+                  setEditingTour({ title: '', description: '', price: 0, duration: '' });
+                  setIsTourModalOpen(true);
                 }
               }}
               className="bg-black text-[#A3E635] px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
             >
               <Plus size={18} />
-              Add New {activeTab === 'routes' ? 'Route' : 'Car'}
+              Add New {activeTab === 'routes' ? 'Route' : activeTab === 'cars' ? 'Car' : 'Package'}
             </button>
           )}
         </div>
@@ -715,6 +812,58 @@ const Admin: React.FC = () => {
               ))}
             </div>
           )}
+
+          {activeTab === 'tours' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tourPackages.map((pkg, i) => (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.05 }}
+                  key={pkg.id} 
+                  className="bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all group"
+                >
+                  <div className="relative h-48 bg-gray-100">
+                    {pkg.image_url ? (
+                      <img src={pkg.image_url} alt={pkg.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-300">
+                        <ImageIcon size={48} />
+                      </div>
+                    )}
+                    <div className="absolute top-4 right-4 flex gap-2">
+                      <button 
+                        onClick={() => {
+                          setEditingTour(pkg);
+                          setIsTourModalOpen(true);
+                        }}
+                        className="w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-900 rounded-xl flex items-center justify-center hover:bg-black hover:text-[#A3E635] transition-all shadow-lg"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteTour(pkg.id)}
+                        className="w-10 h-10 bg-red-500 text-white rounded-xl flex items-center justify-center hover:bg-red-600 transition-all shadow-lg"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-8">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-xl font-black text-gray-900 tracking-tight">{pkg.title}</h3>
+                      <span className="text-[#A3E635] font-black">₹{pkg.price}</span>
+                    </div>
+                    <p className="text-gray-400 text-sm line-clamp-2 mb-4">{pkg.description}</p>
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <Clock size={14} />
+                      <span className="text-xs font-bold uppercase tracking-widest">{pkg.duration}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 
@@ -856,6 +1005,99 @@ const Admin: React.FC = () => {
         </form>
       </Modal>
 
+      {/* Tour Modal */}
+      <Modal 
+        isOpen={isTourModalOpen} 
+        onClose={() => setIsTourModalOpen(false)} 
+        title={editingTour?.id ? 'Edit Tour Package' : 'New Tour Package'}
+      >
+        <form onSubmit={handleSaveTour} className="space-y-6">
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Tour Title</label>
+            <input 
+              required
+              type="text" 
+              value={editingTour?.title || ''}
+              onChange={(e) => setEditingTour(prev => ({ ...prev, title: e.target.value }))}
+              placeholder="e.g. Weekend Getaway to Parasnath"
+              className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Price (₹)</label>
+              <input 
+                required
+                type="number" 
+                value={editingTour?.price || ''}
+                onChange={(e) => setEditingTour(prev => ({ ...prev, price: parseInt(e.target.value) }))}
+                placeholder="2500"
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Duration</label>
+              <input 
+                required
+                type="text" 
+                value={editingTour?.duration || ''}
+                onChange={(e) => setEditingTour(prev => ({ ...prev, duration: e.target.value }))}
+                placeholder="e.g. 2 Days / 1 Night"
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description</label>
+            <textarea 
+              required
+              rows={3}
+              value={editingTour?.description || ''}
+              onChange={(e) => setEditingTour(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Describe the tour package details..."
+              className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all resize-none"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Package Image</label>
+            <div className="relative group">
+              <div className={`w-full h-40 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden transition-all ${isUploading ? 'opacity-50' : 'hover:border-[#A3E635]'}`}>
+                {editingTour?.image_url ? (
+                  <img src={editingTour.image_url} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <>
+                    <ImageIcon className="text-gray-300 mb-2" size={32} />
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Click to upload</p>
+                  </>
+                )}
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  disabled={isUploading}
+                />
+              </div>
+              {isUploading && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <RefreshCw className="animate-spin text-black" size={24} />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <button 
+            type="submit"
+            disabled={isUploading}
+            className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+          >
+            {editingTour?.id ? 'Update Package' : 'Create Package'}
+          </button>
+        </form>
+      </Modal>
     </div>
   );
 };

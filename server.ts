@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import WhatsApp from 'whatsapp-cloud-api';
 import jwt from 'jsonwebtoken';
+import multer from 'multer';
 import { supabase } from "./src/services/supabase/client.ts";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,6 +12,8 @@ const __dirname = path.dirname(__filename);
 
 const JWT_SECRET = process.env.JWT_SECRET || 'gobokaro_secret_2024_premium';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'gobokaro2024';
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Lazy initialization of WhatsApp client
 let whatsappClient: any = null;
@@ -239,6 +242,67 @@ async function startServer() {
     const { error } = await supabase.from('cars').delete().eq('id', req.params.id);
     if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });
+  });
+
+  // Tour Packages Management
+  app.get("/api/tour-packages", async (req, res) => {
+    const { data, error } = await supabase.from('tour_packages').select('*').order('created_at', { ascending: false });
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+  });
+
+  app.get("/api/admin/tour-packages", authenticateAdmin, async (req, res) => {
+    const { data, error } = await supabase.from('tour_packages').select('*').order('created_at', { ascending: false });
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+  });
+
+  app.post("/api/admin/tour-packages", authenticateAdmin, async (req, res) => {
+    const pkg = req.body;
+    if (pkg.id) {
+      const { data, error } = await supabase.from('tour_packages').update(pkg).eq('id', pkg.id).select().single();
+      if (error) return res.status(500).json({ error: error.message });
+      res.json(data);
+    } else {
+      const { data, error } = await supabase.from('tour_packages').insert([pkg]).select().single();
+      if (error) return res.status(500).json({ error: error.message });
+      res.json(data);
+    }
+  });
+
+  app.delete("/api/admin/tour-packages/:id", authenticateAdmin, async (req, res) => {
+    const { error } = await supabase.from('tour_packages').delete().eq('id', req.params.id);
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ success: true });
+  });
+
+  app.post("/api/admin/upload-image", authenticateAdmin, upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+
+      const file = req.file;
+      const fileExt = file.originalname.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+      const filePath = `tour-packages/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('images')
+        .upload(filePath, file.buffer, {
+          contentType: file.mimetype,
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
+
+      res.json({ url: publicUrl });
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      res.status(500).json({ error: error.message });
+    }
   });
 
   // Vite middleware for development

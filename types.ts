@@ -24,3 +24,13 @@ export interface Lead {
   address: string;
   vehicleType: 'Sedan' | 'SUV';
 }
+
+export interface TourPackage {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  duration: string;
+  image_url?: string;
+  created_at?: string;
+}
