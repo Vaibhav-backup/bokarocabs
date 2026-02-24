@@ -3,10 +3,14 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import WhatsApp from 'whatsapp-cloud-api';
+import jwt from 'jsonwebtoken';
 import { supabase } from "./src/services/supabase/client.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const JWT_SECRET = process.env.JWT_SECRET || 'gobokaro_secret_2024_premium';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'gobokaro2024';
 
 // Lazy initialization of WhatsApp client
 let whatsappClient: any = null;
@@ -33,11 +37,38 @@ function getWhatsAppClient() {
   return whatsappClient;
 }
 
+// JWT Middleware
+const authenticateAdmin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.status(401).json({ error: "Access denied. No token provided." });
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    (req as any).admin = decoded;
+    next();
+  } catch (error) {
+    res.status(403).json({ error: "Invalid or expired token." });
+  }
+};
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
   app.use(express.json());
+
+  // Admin Login
+  app.post("/api/admin/login", (req, res) => {
+    const { password } = req.body;
+    if (password === ADMIN_PASSWORD) {
+      const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
+      res.json({ success: true, token });
+    } else {
+      res.status(401).json({ error: "Invalid password" });
+    }
+  });
 
   // API routes
   app.post("/api/leads", async (req, res) => {
@@ -92,12 +123,7 @@ async function startServer() {
     });
   });
 
-  app.get("/api/admin/leads", async (req, res) => {
-    const adminKey = req.headers['x-admin-key'];
-    if (adminKey !== 'gobokaro2024') {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
+  app.get("/api/admin/leads", authenticateAdmin, async (req, res) => {
     const { data, error } = await supabase
       .from('leads')
       .select('*')
@@ -116,11 +142,7 @@ async function startServer() {
     res.json(mappedLeads);
   });
 
-  app.patch("/api/admin/leads/:id", async (req, res) => {
-    const adminKey = req.headers['x-admin-key'];
-    if (adminKey !== 'gobokaro2024') {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+  app.patch("/api/admin/leads/:id", authenticateAdmin, async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     
@@ -142,17 +164,13 @@ async function startServer() {
     res.json(data);
   });
 
-  app.get("/api/admin/routes", async (req, res) => {
-    const adminKey = req.headers['x-admin-key'];
-    if (adminKey !== 'gobokaro2024') return res.status(401).json({ error: "Unauthorized" });
+  app.get("/api/admin/routes", authenticateAdmin, async (req, res) => {
     const { data, error } = await supabase.from('routes').select('*').order('destination');
     if (error) return res.status(500).json({ error: error.message });
     res.json(data);
   });
 
-  app.post("/api/admin/routes", async (req, res) => {
-    const adminKey = req.headers['x-admin-key'];
-    if (adminKey !== 'gobokaro2024') return res.status(401).json({ error: "Unauthorized" });
+  app.post("/api/admin/routes", authenticateAdmin, async (req, res) => {
     const route = req.body;
     
     if (route.id) {
@@ -175,9 +193,7 @@ async function startServer() {
     }
   });
 
-  app.delete("/api/admin/routes/:id", async (req, res) => {
-    const adminKey = req.headers['x-admin-key'];
-    if (adminKey !== 'gobokaro2024') return res.status(401).json({ error: "Unauthorized" });
+  app.delete("/api/admin/routes/:id", authenticateAdmin, async (req, res) => {
     const { error } = await supabase.from('routes').delete().eq('id', req.params.id);
     if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });
@@ -190,17 +206,13 @@ async function startServer() {
     res.json(data);
   });
 
-  app.get("/api/admin/cars", async (req, res) => {
-    const adminKey = req.headers['x-admin-key'];
-    if (adminKey !== 'gobokaro2024') return res.status(401).json({ error: "Unauthorized" });
+  app.get("/api/admin/cars", authenticateAdmin, async (req, res) => {
     const { data, error } = await supabase.from('cars').select('*').order('name');
     if (error) return res.status(500).json({ error: error.message });
     res.json(data);
   });
 
-  app.post("/api/admin/cars", async (req, res) => {
-    const adminKey = req.headers['x-admin-key'];
-    if (adminKey !== 'gobokaro2024') return res.status(401).json({ error: "Unauthorized" });
+  app.post("/api/admin/cars", authenticateAdmin, async (req, res) => {
     const car = req.body;
     
     if (car.id) {
@@ -223,9 +235,7 @@ async function startServer() {
     }
   });
 
-  app.delete("/api/admin/cars/:id", async (req, res) => {
-    const adminKey = req.headers['x-admin-key'];
-    if (adminKey !== 'gobokaro2024') return res.status(401).json({ error: "Unauthorized" });
+  app.delete("/api/admin/cars/:id", authenticateAdmin, async (req, res) => {
     const { error } = await supabase.from('cars').delete().eq('id', req.params.id);
     if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });

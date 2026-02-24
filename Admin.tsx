@@ -127,7 +127,14 @@ const Admin: React.FC = () => {
   const [editingRoute, setEditingRoute] = useState<Partial<RoutePrice> | null>(null);
   const [editingCar, setEditingCar] = useState<Partial<Car> | null>(null);
 
-  const ADMIN_KEY = 'gobokaro2024';
+  const [token, setToken] = useState<string | null>(localStorage.getItem('admin_token'));
+
+  useEffect(() => {
+    if (token) {
+      setIsAuthenticated(true);
+      fetchData();
+    }
+  }, [token]);
 
   const addNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Math.random().toString(36).substr(2, 9);
@@ -138,14 +145,20 @@ const Admin: React.FC = () => {
   };
 
   const fetchData = async () => {
+    if (!token) return;
     setLoading(true);
     try {
-      const headers = { 'x-admin-key': ADMIN_KEY };
+      const headers = { 'Authorization': `Bearer ${token}` };
       const [leadsRes, routesRes, carsRes] = await Promise.all([
         fetch('/api/admin/leads', { headers }),
         fetch('/api/admin/routes', { headers }),
         fetch('/api/admin/cars', { headers })
       ]);
+
+      if (leadsRes.status === 403 || leadsRes.status === 401) {
+        handleLogout();
+        return;
+      }
 
       if (leadsRes.ok) {
         const data = await leadsRes.json();
@@ -166,7 +179,7 @@ const Admin: React.FC = () => {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-key': ADMIN_KEY
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ status })
       });
@@ -187,7 +200,7 @@ const Admin: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-key': ADMIN_KEY
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(editingRoute)
       });
@@ -207,7 +220,7 @@ const Admin: React.FC = () => {
     try {
       const response = await fetch(`/api/admin/routes/${id}`, {
         method: 'DELETE',
-        headers: { 'x-admin-key': ADMIN_KEY }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
         addNotification('Route deleted', 'success');
@@ -229,7 +242,7 @@ const Admin: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-key': ADMIN_KEY
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(editingCar)
       });
@@ -249,7 +262,7 @@ const Admin: React.FC = () => {
     try {
       const response = await fetch(`/api/admin/cars/${id}`, {
         method: 'DELETE',
-        headers: { 'x-admin-key': ADMIN_KEY }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
         addNotification('Car deleted', 'success');
@@ -263,14 +276,33 @@ const Admin: React.FC = () => {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_KEY) {
-      setIsAuthenticated(true);
-      fetchData();
-    } else {
-      setError('Invalid password');
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const data = await response.json();
+      if (response.ok && data.token) {
+        localStorage.setItem('admin_token', data.token);
+        setToken(data.token);
+        setIsAuthenticated(true);
+        addNotification('Welcome back, Admin', 'success');
+      } else {
+        setError(data.error || 'Invalid password');
+      }
+    } catch (err) {
+      setError('Connection failed');
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_token');
+    setToken(null);
+    setIsAuthenticated(false);
+    setPassword('');
   };
 
   if (!isAuthenticated) {
@@ -379,7 +411,7 @@ const Admin: React.FC = () => {
 
         <div className="pt-8 border-t border-white/10">
           <button 
-            onClick={() => setIsAuthenticated(false)}
+            onClick={handleLogout}
             className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-xs text-red-400 hover:bg-red-400/10 transition-all"
           >
             <LogOut size={18} />
@@ -396,7 +428,7 @@ const Admin: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <button onClick={fetchData} className="p-2 text-gray-400 hover:text-white"><RefreshCw size={20} /></button>
-          <button onClick={() => setIsAuthenticated(false)} className="p-2 text-red-400"><LogOut size={20} /></button>
+          <button onClick={handleLogout} className="p-2 text-red-400"><LogOut size={20} /></button>
         </div>
       </header>
 

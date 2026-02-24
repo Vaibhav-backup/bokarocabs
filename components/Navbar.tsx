@@ -148,6 +148,13 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
             className="fixed inset-0 bg-white z-[99] md:hidden flex flex-col p-8 pt-32"
           >
             <div className="flex flex-col gap-8">
+              <button 
+                onClick={() => setIsMenuOpen(false)}
+                className="self-start flex items-center gap-2 text-gray-400 font-black text-[10px] uppercase tracking-[0.3em] mb-4 hover:text-black transition-colors"
+              >
+                <ChevronRight size={16} className="rotate-180" />
+                Back
+              </button>
               {['Home', ...navLinks.map(l => l.name)].map((name, i) => (
                 <motion.button
                   initial={{ opacity: 0, x: 20 }}

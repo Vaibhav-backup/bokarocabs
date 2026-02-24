@@ -165,7 +165,7 @@ const Hero: React.FC = () => {
             className="text-5xl md:text-7xl lg:text-9xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl"
           >
             Safar Shuru Karein <br/>
-            <span className="text-[#A3E635] italic">Go Bokaro</span> <span className="text-white/30">Cabs.</span>
+            <span className="text-[#A3E635] italic">Go Bokaro</span> <span className="text-white">Cabs.</span>
           </motion.h1>
           
           <motion.p
