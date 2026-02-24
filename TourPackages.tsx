@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { Clock, MapPin, Phone, ArrowRight, ChevronRight } from 'lucide-react';
 import { TourPackage } from './types';
 import { WHATSAPP_LINK, CONTACT_PHONE } from './constants';
+import { Link } from 'react-router-dom';
 
 const TourPackages: React.FC = () => {
   const [packages, setPackages] = useState<TourPackage[]>([]);
@@ -81,57 +82,55 @@ const TourPackages: React.FC = () => {
             ) : packages.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {packages.map((pkg, i) => (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    key={pkg.id}
-                    className="group bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500"
-                  >
-                    <div className="relative h-72 overflow-hidden">
-                      {pkg.image_url ? (
-                        <img 
-                          src={pkg.image_url} 
-                          alt={pkg.title} 
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
-                          <MapPin size={48} />
+                  <Link to={`/tours/${pkg.id}`} key={pkg.id}>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      className="group bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500"
+                    >
+                      <div className="relative h-72 overflow-hidden">
+                        {pkg.image_url ? (
+                          <img 
+                            src={pkg.image_url} 
+                            alt={pkg.title} 
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
+                            <MapPin size={48} />
+                          </div>
+                        )}
+                        <div className="absolute top-6 left-6">
+                          <span className="bg-white/90 backdrop-blur-md text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">
+                            {pkg.duration}
+                          </span>
                         </div>
-                      )}
-                      <div className="absolute top-6 left-6">
-                        <span className="bg-white/90 backdrop-blur-md text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">
-                          {pkg.duration}
-                        </span>
                       </div>
-                    </div>
-                    
-                    <div className="p-10">
-                      <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-2xl font-black text-gray-900 tracking-tight group-hover:text-[#A3E635] transition-colors">{pkg.title}</h3>
-                      </div>
-                      <p className="text-gray-500 font-medium text-sm leading-relaxed mb-8 line-clamp-3">
-                        {pkg.description}
-                      </p>
                       
-                      <div className="flex items-center justify-between pt-8 border-t border-gray-50">
-                        <div>
-                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Starting from</p>
-                          <p className="text-3xl font-black text-gray-900 tracking-tighter">₹{pkg.price.toLocaleString()}</p>
+                      <div className="p-10">
+                        <div className="flex justify-between items-start mb-4">
+                          <h3 className="text-2xl font-black text-gray-900 tracking-tight group-hover:text-[#A3E635] transition-colors">{pkg.title}</h3>
                         </div>
-                        <a 
-                          href={`${WHATSAPP_LINK}?text=I'm interested in the ${pkg.title} tour package.`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-14 h-14 bg-black text-[#A3E635] rounded-2xl flex items-center justify-center hover:bg-[#A3E635] hover:text-black transition-all shadow-xl group-hover:rotate-12"
-                        >
-                          <ArrowRight size={24} />
-                        </a>
+                        <p className="text-gray-500 font-medium text-sm leading-relaxed mb-8 line-clamp-3">
+                          {pkg.description}
+                        </p>
+                        
+                        <div className="flex items-center justify-between pt-8 border-t border-gray-50">
+                          <div>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Starting from</p>
+                            <p className="text-3xl font-black text-gray-900 tracking-tighter">₹{pkg.price.toLocaleString()}</p>
+                          </div>
+                          <div
+                            className="w-14 h-14 bg-black text-[#A3E635] rounded-2xl flex items-center justify-center hover:bg-[#A3E635] hover:text-black transition-all shadow-xl group-hover:rotate-12"
+                          >
+                            <ArrowRight size={24} />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
+                    </motion.div>
+                  </Link>
                 ))}
               </div>
             ) : (

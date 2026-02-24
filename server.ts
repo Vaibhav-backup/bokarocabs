@@ -252,6 +252,17 @@ async function startServer() {
     res.json(data);
   });
 
+  app.get("/api/tour-packages/:id", async (req, res) => {
+    const { id } = req.params;
+    const { data, error } = await supabase
+      .from('tour_packages')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) return res.status(404).json({ error: "Package not found" });
+    res.json(data);
+  });
+
   app.get("/api/admin/tour-packages", authenticateAdmin, async (req, res) => {
     const { data, error } = await supabase.from('tour_packages').select('*').order('created_at', { ascending: false });
     if (error) return res.status(500).json({ error: error.message });

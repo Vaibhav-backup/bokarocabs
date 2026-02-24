@@ -12,6 +12,7 @@ import NotFound from './components/NotFound';
 import ErrorBoundary from './components/ErrorBoundary';
 import Admin from './Admin';
 import TourPackages from './TourPackages';
+import TourPackageDetails from './TourPackageDetails';
 
 const ScrollHandler: React.FC<{ targetId: string | null, onComplete: () => void }> = ({ targetId, onComplete }) => {
   useEffect(() => {
@@ -77,6 +78,7 @@ const AppContent: React.FC = () => {
             <Routes location={location}>
               <Route path="/" element={<Home />} />
               <Route path="/tours" element={<TourPackages />} />
+              <Route path="/tours/:id" element={<TourPackageDetails />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsConditions />} />
               <Route path="*" element={<NotFound />} />
