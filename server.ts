@@ -164,7 +164,10 @@ async function startServer() {
   // Routes Management
   app.get("/api/routes", async (req, res) => {
     const { data, error } = await supabase.from('routes').select('*').order('destination');
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) {
+      console.error('Error fetching routes from Supabase:', error);
+      return res.status(500).json({ error: 'Failed to fetch routes' });
+    }
     res.json(data);
   });
 
@@ -219,7 +222,10 @@ async function startServer() {
   // Cars Management
   app.get("/api/cars", async (req, res) => {
     const { data, error } = await supabase.from('cars').select('*').order('name');
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) {
+      console.error('Error fetching cars from Supabase:', error);
+      return res.status(500).json({ error: 'Failed to fetch cars' });
+    }
     res.json(data);
   });
 
@@ -274,7 +280,10 @@ async function startServer() {
   // Tour Packages Management
   app.get("/api/tour-packages", async (req, res) => {
     const { data, error } = await supabase.from('tour_packages').select('*').order('created_at', { ascending: false });
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) {
+      console.error('Error fetching tour packages from Supabase:', error);
+      return res.status(500).json({ error: 'Failed to fetch tour packages' });
+    }
     res.json(data);
   });
 
@@ -285,7 +294,10 @@ async function startServer() {
       .select('*')
       .eq('id', id)
       .single();
-    if (error) return res.status(404).json({ error: "Package not found" });
+    if (error) {
+      console.error(`Error fetching tour package ${id} from Supabase:`, error);
+      return res.status(404).json({ error: "Package not found" });
+    }
     res.json(data);
   });
 
