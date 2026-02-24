@@ -4,8 +4,6 @@ import { motion } from 'motion/react';
 import { Clock, MapPin, Phone, ArrowRight, ChevronRight } from 'lucide-react';
 import { TourPackage } from './types';
 import { WHATSAPP_LINK, CONTACT_PHONE } from './constants';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
 
 const TourPackages: React.FC = () => {
   const [packages, setPackages] = useState<TourPackage[]>([]);
@@ -30,13 +28,11 @@ const TourPackages: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
-      
-      <main className="pt-32 pb-24">
+      <main className="pt-24 pb-24">
         {/* Hero Section */}
-        <section className="px-4 md:px-8 mb-20">
+        <section className="px-4 md:px-8 mb-12">
           <div className="max-w-7xl mx-auto">
-            <div className="bg-black rounded-[3rem] p-12 md:p-24 relative overflow-hidden">
+            <div className="bg-black rounded-[2.5rem] p-8 md:p-16 relative overflow-hidden">
               <div className="absolute inset-0 opacity-20">
                 <img 
                   src="https://picsum.photos/seed/travel/1920/1080" 
@@ -45,30 +41,29 @@ const TourPackages: React.FC = () => {
                   referrerPolicy="no-referrer"
                 />
               </div>
-              <div className="relative z-10 max-w-3xl">
+              <div className="relative z-10">
                 <motion.span 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="inline-block bg-[#A3E635] text-black px-6 py-2 rounded-full text-[10px] font-black tracking-[0.3em] uppercase mb-8"
+                  className="inline-block bg-[#A3E635] text-black px-4 py-1.5 rounded-full text-[9px] font-black tracking-[0.3em] uppercase mb-4"
                 >
                   Explore Jharkhand
                 </motion.span>
                 <motion.h1 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[0.9] mb-8"
+                  className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-none mb-4"
                 >
-                  Curated <br/>
-                  <span className="text-[#A3E635] italic text-4xl md:text-6xl lg:text-7xl">Tour Packages.</span>
+                  Curated <span className="text-[#A3E635] italic">Tour Packages.</span>
                 </motion.h1>
                 <motion.p 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-gray-400 text-lg md:text-xl font-medium max-w-xl"
+                  className="text-gray-400 text-sm md:text-base font-medium max-w-xl"
                 >
-                  Discover the hidden gems of Jharkhand with our specially crafted tour packages. From spiritual journeys to nature retreats.
+                  Discover the hidden gems of Jharkhand with our specially crafted tour packages.
                 </motion.p>
               </div>
             </div>
@@ -181,8 +176,6 @@ const TourPackages: React.FC = () => {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 };
