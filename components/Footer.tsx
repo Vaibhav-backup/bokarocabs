@@ -1,18 +1,20 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { CONTACT_PHONE, WHATSAPP_LINK, INSTAGRAM_LINK, FACEBOOK_LINK } from '../constants';
 
 interface FooterProps {
-  onPrivacyClick?: () => void;
-  onTermsClick?: () => void;
   onNavigateHome?: (sectionId?: string) => void;
 }
 
-const Footer: React.FC<FooterProps> = ({ onPrivacyClick, onTermsClick, onNavigateHome }) => {
+const Footer: React.FC<FooterProps> = ({ onNavigateHome }) => {
   const handleNavClick = (e: React.MouseEvent, id?: string) => {
-    e.preventDefault();
-    if (onNavigateHome) {
-      onNavigateHome(id);
+    // If we are on home page, just scroll
+    if (window.location.pathname === '/') {
+      e.preventDefault();
+      if (onNavigateHome) {
+        onNavigateHome(id);
+      }
     }
   };
 
@@ -21,7 +23,7 @@ const Footer: React.FC<FooterProps> = ({ onPrivacyClick, onTermsClick, onNavigat
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* Brand */}
         <div>
-          <div className="flex items-center gap-3 mb-6 cursor-pointer" onClick={(e) => handleNavClick(e)}>
+          <Link to="/" className="flex items-center gap-3 mb-6 cursor-pointer" onClick={(e) => handleNavClick(e)}>
             <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden border-2 border-[#A3E635]">
               <img 
                 src="https://res.cloudinary.com/dn6sk8mqh/image/upload/v1771266719/Screenshot_2026-02-16_235537_ru81eo.png" 
@@ -33,7 +35,7 @@ const Footer: React.FC<FooterProps> = ({ onPrivacyClick, onTermsClick, onNavigat
               <h1 className="text-xl font-black tracking-tighter leading-none">GO BOKARO</h1>
               <p className="text-[10px] tracking-[0.2em] text-[#A3E635] font-bold uppercase">Cabs</p>
             </div>
-          </div>
+          </Link>
           <p className="text-gray-400 text-sm leading-relaxed mb-6">
             Jharkhand's most trusted intercity cab service provider. 
             Committed to safety, excellence, and the spirit of Bokaro.
@@ -108,8 +110,8 @@ const Footer: React.FC<FooterProps> = ({ onPrivacyClick, onTermsClick, onNavigat
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-gray-500 text-xs">
         <p>© 2024 Go Bokaro Cabs. All rights reserved.</p>
         <div className="flex gap-6">
-          <button onClick={onPrivacyClick} className="hover:text-white text-left">Privacy Policy</button>
-          <button onClick={onTermsClick} className="hover:text-white text-left">Terms of Service</button>
+          <Link to="/privacy" className="hover:text-white text-left">Privacy Policy</Link>
+          <Link to="/terms" className="hover:text-white text-left">Terms of Service</Link>
           <span className="text-[#A3E635] font-bold">Made with Pride in Bokaro</span>
         </div>
       </div>

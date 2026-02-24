@@ -1,12 +1,8 @@
 
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
-interface TermsConditionsProps {
-  onBack: () => void;
-}
-
-const TermsConditions: React.FC<TermsConditionsProps> = ({ onBack }) => {
-  
+const TermsConditions: React.FC = () => {
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -15,13 +11,13 @@ const TermsConditions: React.FC<TermsConditionsProps> = ({ onBack }) => {
   return (
     <section className="pt-28 pb-20 px-4 md:px-8 bg-white min-h-screen">
       <div className="max-w-4xl mx-auto">
-        <button 
-          onClick={onBack}
+        <Link 
+          to="/"
           className="group flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-[#A3E635] transition-colors mb-8 uppercase tracking-widest"
         >
           <i className="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
           Back to Home
-        </button>
+        </Link>
 
         <div className="bg-gray-50 rounded-[2rem] p-8 md:p-12 border border-gray-100 shadow-xl animate-fade-in">
           <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-8">Terms & Conditions</h1>

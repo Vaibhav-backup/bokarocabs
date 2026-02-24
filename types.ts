@@ -17,3 +17,10 @@ export interface BookingState {
   tripType: TripType;
   event?: string;
 }
+
+export interface Lead {
+  name: string;
+  phone: string;
+  address: string;
+  vehicleType: 'Sedan' | 'SUV';
+}

@@ -1,15 +1,7 @@
 
-import React, { useState } from 'react';
-import { TripType, BookingState, RoutePrice } from '../types';
-import { ROUTES_PRICING, WHATSAPP_LINK } from '../constants';
-
-const CITIES = [
-  'Bokaro Steel City',
-  ...ROUTES_PRICING.map(r => r.destination),
-  'Patna', 'Gaya', 'Deoghar', 'Varanasi', 'Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Hyderabad',
-  'Bhubaneswar', 'Siliguri', 'Puri'
-];
-const UNIQUE_CITIES = Array.from(new Set(CITIES)).sort();
+import React, { useState, useEffect } from 'react';
+import { TripType, BookingState, RoutePrice, Lead } from '../types';
+import { WHATSAPP_LINK } from '../constants';
 
 const EVENTS = [
   'Wedding / Marriage',
@@ -22,6 +14,8 @@ const EVENTS = [
 ];
 
 const Hero: React.FC = () => {
+  const [routesPricing, setRoutesPricing] = useState<RoutePrice[]>([]);
+  const [availableCars, setAvailableCars] = useState<any[]>([]);
   const [booking, setBooking] = useState<BookingState>({
     from: 'Bokaro Steel City',
     to: '',
@@ -30,7 +24,39 @@ const Hero: React.FC = () => {
     tripType: 'One Way'
   });
 
-  const [showQuote, setShowQuote] = useState<RoutePrice | null>(null);
+  const [showLeadForm, setShowLeadForm] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [lead, setLead] = useState<Lead>({
+    name: '',
+    phone: '',
+    address: '',
+    vehicleType: 'Sedan'
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [routesRes, carsRes] = await Promise.all([
+          fetch('/api/routes'),
+          fetch('/api/cars')
+        ]);
+        if (routesRes.ok) setRoutesPricing(await routesRes.json());
+        if (carsRes.ok) setAvailableCars(await carsRes.json());
+      } catch (err) {
+        console.error('Failed to fetch data');
+      }
+    };
+    fetchData();
+  }, []);
+
+  const cities = [
+    'Bokaro Steel City',
+    ...routesPricing.map(r => r.destination),
+    'Patna', 'Gaya', 'Deoghar', 'Varanasi', 'Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Hyderabad',
+    'Bhubaneswar', 'Siliguri', 'Puri'
+  ];
+  const UNIQUE_CITIES = Array.from(new Set(cities)).sort();
 
   const tripTypes: { id: TripType; icon: string; label: string }[] = [
     { id: 'One Way', icon: 'fa-arrow-right', label: 'One Way' },
@@ -57,16 +83,44 @@ const Hero: React.FC = () => {
 
     // Check if route involves Bokaro and exists in our DB
     if (fromNorm.includes(bokaroNorm)) {
-      foundRoute = ROUTES_PRICING.find(r => normalize(r.destination) === toNorm);
+      foundRoute = routesPricing.find(r => normalize(r.destination) === toNorm);
     } else if (toNorm.includes(bokaroNorm)) {
-      foundRoute = ROUTES_PRICING.find(r => normalize(r.destination) === fromNorm);
+      foundRoute = routesPricing.find(r => normalize(r.destination) === fromNorm);
     }
 
-    if (foundRoute) {
-      setShowQuote(foundRoute);
-    } else {
-      // Direct WhatsApp for custom routes
-      openWhatsApp();
+    setShowLeadForm(true);
+  };
+
+  const handleLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...lead,
+          bookingDetails: booking
+        })
+      });
+
+      if (response.ok) {
+        setIsSuccess(true);
+        // Also open WhatsApp as a fallback/direct action
+        const text = `Namaste Go Bokaro Cabs! My name is ${lead.name}. I want to book a ${lead.vehicleType} for ${booking.tripType}${booking.event ? ` (${booking.event})` : ''} from ${booking.from} to ${booking.to} on ${booking.date} at ${booking.time}. My address: ${lead.address}. Contact: ${lead.phone}`;
+        window.open(`${WHATSAPP_LINK}?text=${encodeURIComponent(text)}`, '_blank');
+        
+        setTimeout(() => {
+          setShowLeadForm(false);
+          setIsSuccess(false);
+          setIsSubmitting(false);
+        }, 3000);
+      }
+    } catch (error) {
+      console.error("Error submitting lead:", error);
+      alert("Something went wrong. Please try again.");
+      setIsSubmitting(false);
     }
   };
 
@@ -78,7 +132,6 @@ const Hero: React.FC = () => {
       text += ` Please provide a quote for this route.`;
     }
     window.open(`${WHATSAPP_LINK}?text=${encodeURIComponent(text)}`, '_blank');
-    setShowQuote(null);
   };
 
   const swapLocations = () => {
@@ -294,27 +347,23 @@ const Hero: React.FC = () => {
         </div>
       </div>
 
-      {/* Quote Modal */}
-      {showQuote && (
+      {/* Lead Form Modal */}
+      {showLeadForm && (
         <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white w-full max-w-md rounded-t-[2rem] md:rounded-[2rem] overflow-hidden shadow-2xl animate-[fadeIn_0.3s_ease-out]">
             {/* Modal Header */}
             <div className="bg-black text-white p-6 relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">
-                <i className="fas fa-route text-9xl"></i>
+                <i className="fas fa-id-card text-9xl"></i>
               </div>
-              <h3 className="text-[#A3E635] font-black text-sm uppercase tracking-[0.2em] mb-2">Route Available</h3>
+              <h3 className="text-[#A3E635] font-black text-sm uppercase tracking-[0.2em] mb-2">Booking Inquiry</h3>
               <div className="flex items-center gap-3 text-2xl font-black">
                 <span>{booking.from.split(' ')[0]}</span>
                 <i className="fas fa-long-arrow-alt-right text-gray-500"></i>
                 <span>{booking.to.split(' ')[0]}</span>
               </div>
-              <div className="flex gap-4 mt-4 text-xs font-medium text-gray-400">
-                <span className="flex items-center gap-2"><i className="fas fa-road"></i> {showQuote.distance}</span>
-                <span className="flex items-center gap-2"><i className="fas fa-clock"></i> {showQuote.time}</span>
-              </div>
               <button 
-                onClick={() => setShowQuote(null)} 
+                onClick={() => setShowLeadForm(false)} 
                 className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all"
               >
                 <i className="fas fa-times"></i>
@@ -322,55 +371,96 @@ const Hero: React.FC = () => {
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 space-y-4">
-              <div className="p-4 rounded-xl border-2 border-lime-100 bg-lime-50/50 flex justify-between items-center group cursor-pointer hover:border-[#A3E635] transition-all"
-                   onClick={() => openWhatsApp('Sedan')}
-              >
-                <div className="flex items-center gap-4">
-                   <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-lime-600 text-xl">
-                     <i className="fas fa-car-side"></i>
-                   </div>
-                   <div>
-                     <p className="font-black text-gray-900 text-lg">Sedan</p>
-                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Dzire / Etios</p>
-                   </div>
+            <div className="p-6">
+              {isSuccess ? (
+                <div className="text-center py-8 animate-fade-in">
+                  <div className="w-20 h-20 bg-lime-100 text-lime-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
+                    <i className="fas fa-check"></i>
+                  </div>
+                  <h4 className="text-2xl font-black text-gray-900 mb-2">Inquiry Sent!</h4>
+                  <p className="text-gray-500 font-medium">Hum aapse jaldi contact karenge.</p>
                 </div>
-                <div className="text-right">
-                  <p className="font-black text-xl text-gray-900">₹{showQuote.sedan}</p>
-                  <p className="text-[10px] text-lime-600 font-bold">Base Fare</p>
-                </div>
-              </div>
+              ) : (
+                <form onSubmit={handleLeadSubmit} className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
+                    <input 
+                      required
+                      type="text" 
+                      value={lead.name}
+                      onChange={(e) => setLead(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Enter your name"
+                      className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl p-3 font-bold text-gray-900 focus:border-black focus:bg-white outline-none transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
+                    <input 
+                      required
+                      type="tel" 
+                      value={lead.phone}
+                      onChange={(e) => setLead(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="Enter mobile number"
+                      className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl p-3 font-bold text-gray-900 focus:border-black focus:bg-white outline-none transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Pickup Address</label>
+                    <textarea 
+                      required
+                      value={lead.address}
+                      onChange={(e) => setLead(prev => ({ ...prev, address: e.target.value }))}
+                      placeholder="Enter full address"
+                      rows={2}
+                      className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl p-3 font-bold text-gray-900 focus:border-black focus:bg-white outline-none transition-all resize-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Vehicle Type</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {availableCars.map((car) => (
+                        <button 
+                          key={car.id}
+                          type="button"
+                          onClick={() => setLead(prev => ({ ...prev, vehicleType: car.name }))}
+                          className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${lead.vehicleType === car.name ? 'border-black bg-black text-[#A3E635]' : 'border-gray-100 bg-gray-50 text-gray-400'}`}
+                        >
+                          <span className="font-black text-sm uppercase tracking-widest">{car.name}</span>
+                          <span className={`text-[9px] font-bold mt-1 ${lead.vehicleType === car.name ? 'text-white/60' : 'text-gray-400'}`}>{car.models}</span>
+                        </button>
+                      ))}
+                      {availableCars.length === 0 && (
+                        <>
+                          <button 
+                            type="button"
+                            onClick={() => setLead(prev => ({ ...prev, vehicleType: 'Sedan' }))}
+                            className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${lead.vehicleType === 'Sedan' ? 'border-black bg-black text-[#A3E635]' : 'border-gray-100 bg-gray-50 text-gray-400'}`}
+                          >
+                            <span className="font-black text-sm uppercase tracking-widest">SEDAN</span>
+                            <span className="text-[9px] font-bold mt-1">Dzire / Aura</span>
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={() => setLead(prev => ({ ...prev, vehicleType: 'SUV' }))}
+                            className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${lead.vehicleType === 'SUV' ? 'border-black bg-black text-[#A3E635]' : 'border-gray-100 bg-gray-50 text-gray-400'}`}
+                          >
+                            <span className="font-black text-sm uppercase tracking-widest">SUV</span>
+                            <span className="text-[9px] font-bold mt-1">Ertiga / Carens</span>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
 
-              <div className="p-4 rounded-xl border-2 border-gray-100 bg-gray-50 flex justify-between items-center group cursor-pointer hover:border-black transition-all"
-                   onClick={() => openWhatsApp('SUV')}
-              >
-                <div className="flex items-center gap-4">
-                   <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-gray-600 text-xl">
-                     <i className="fas fa-shuttle-van"></i>
-                   </div>
-                   <div>
-                     <p className="font-black text-gray-900 text-lg">SUV</p>
-                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Ertiga / Innova</p>
-                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-black text-xl text-gray-900">₹{showQuote.ertiga}</p>
-                  <p className="text-[10px] text-gray-500 font-bold">Premium</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-6 pt-0">
-              <button 
-                onClick={() => openWhatsApp()}
-                className="w-full py-4 bg-black text-[#A3E635] rounded-xl font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all"
-              >
-                <i className="fab fa-whatsapp text-lg"></i> Book on WhatsApp
-              </button>
-              <p className="text-center text-[9px] text-gray-400 font-bold mt-4 uppercase tracking-widest">
-                * Tolls & Parking Extra as applicable
-              </p>
+                  <button 
+                    disabled={isSubmitting}
+                    type="submit"
+                    className="w-full py-4 primary-gradient text-black rounded-xl font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Sending...' : 'Book Now'}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>
