@@ -214,8 +214,10 @@ const Admin: React.FC = () => {
     e.preventDefault();
     if (!editingRoute) return;
     try {
-      const response = await fetch('/api/admin/routes', {
-        method: 'POST',
+      const url = editingRoute.id ? `/api/admin/routes/${editingRoute.id}` : '/api/admin/routes';
+      const method = editingRoute.id ? 'PUT' : 'POST';
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -256,8 +258,10 @@ const Admin: React.FC = () => {
     e.preventDefault();
     if (!editingCar) return;
     try {
-      const response = await fetch('/api/admin/cars', {
-        method: 'POST',
+      const url = editingCar.id ? `/api/admin/cars/${editingCar.id}` : '/api/admin/cars';
+      const method = editingCar.id ? 'PUT' : 'POST';
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -298,8 +302,10 @@ const Admin: React.FC = () => {
     e.preventDefault();
     if (!editingTour) return;
     try {
-      const response = await fetch('/api/admin/tour-packages', {
-        method: 'POST',
+      const url = editingTour.id ? `/api/admin/tour-packages/${editingTour.id}` : '/api/admin/tour-packages';
+      const method = editingTour.id ? 'PUT' : 'POST';
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`

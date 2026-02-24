@@ -197,6 +197,19 @@ async function startServer() {
     }
   });
 
+  app.put("/api/admin/routes/:id", authenticateAdmin, async (req, res) => {
+    const { id } = req.params;
+    const route = req.body;
+    const { data, error } = await supabase
+      .from('routes')
+      .update(route)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+  });
+
   app.delete("/api/admin/routes/:id", authenticateAdmin, async (req, res) => {
     const { error } = await supabase.from('routes').delete().eq('id', req.params.id);
     if (error) return res.status(500).json({ error: error.message });
@@ -237,6 +250,19 @@ async function startServer() {
       if (error) return res.status(500).json({ error: error.message });
       res.json(data);
     }
+  });
+
+  app.put("/api/admin/cars/:id", authenticateAdmin, async (req, res) => {
+    const { id } = req.params;
+    const car = req.body;
+    const { data, error } = await supabase
+      .from('cars')
+      .update(car)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
   });
 
   app.delete("/api/admin/cars/:id", authenticateAdmin, async (req, res) => {
@@ -280,6 +306,19 @@ async function startServer() {
       if (error) return res.status(500).json({ error: error.message });
       res.json(data);
     }
+  });
+
+  app.put("/api/admin/tour-packages/:id", authenticateAdmin, async (req, res) => {
+    const { id } = req.params;
+    const pkg = req.body;
+    const { data, error } = await supabase
+      .from('tour_packages')
+      .update(pkg)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
   });
 
   app.delete("/api/admin/tour-packages/:id", authenticateAdmin, async (req, res) => {
