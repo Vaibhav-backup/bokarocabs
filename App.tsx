@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import StickyCallButton from './components/StickyCallButton';
@@ -64,12 +65,22 @@ const AppContent: React.FC = () => {
       <Navbar onNavigateHome={navigateToHome} />
       
       <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsConditions />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Routes location={location}>
+              <Route path="/" element={<Home />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsConditions />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </motion.div>
+        </AnimatePresence>
       </main>
       
       <Footer 
