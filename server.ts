@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 import WhatsApp from 'whatsapp-cloud-api';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
-import { supabase } from "../client/src/services/supabase/client.ts";
+import { supabase } from "./src/services/supabase/client.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

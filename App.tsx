@@ -7,7 +7,7 @@ import Footer from './components/Footer';
 import StickyCallButton from './components/StickyCallButton';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsConditions from './components/TermsConditions';
-import Home from './Home';
+import Home from './components/Home';
 import NotFound from './components/NotFound';
 import ErrorBoundary from './components/ErrorBoundary';
 import Admin from './Admin';
