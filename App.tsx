@@ -7,6 +7,8 @@ import StickyCallButton from './components/StickyCallButton';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsConditions from './components/TermsConditions';
 import Home from './components/Home';
+import NotFound from './components/NotFound';
+import ErrorBoundary from './components/ErrorBoundary';
 import Admin from './Admin';
 
 const ScrollHandler: React.FC<{ targetId: string | null, onComplete: () => void }> = ({ targetId, onComplete }) => {
@@ -34,16 +36,18 @@ const ScrollHandler: React.FC<{ targetId: string | null, onComplete: () => void 
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AppContent />
+      </Router>
+    </ErrorBoundary>
   );
 };
 
 const AppContent: React.FC = () => {
   const [targetSection, setTargetSection] = useState<string | null>(null);
   const location = useLocation();
-  const isAdminPage = location.pathname === '/admin';
+  const isAdminPage = location.pathname.startsWith('/admin');
 
   const navigateToHome = (sectionId?: string) => {
     setTargetSection(sectionId || 'top');
@@ -64,6 +68,7 @@ const AppContent: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsConditions />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       
