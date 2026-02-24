@@ -65,6 +65,7 @@ async function startServer() {
   // Admin Login
   app.post("/api/admin/login", (req, res) => {
     const { password } = req.body;
+    console.log('Login attempt with password:', password, 'Expected:', ADMIN_PASSWORD);
     if (password === ADMIN_PASSWORD) {
       const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
       res.json({ success: true, token });
