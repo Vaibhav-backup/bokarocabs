@@ -48,7 +48,7 @@ function getWhatsAppClient() {
 router.post("/", async (req, res) => {
   const validation = leadSchema.safeParse(req.body);
   if (!validation.success) {
-    return res.status(400).json({ error: 'Invalid input', details: validation.error.errors });
+    return res.status(400).json({ error: 'Invalid input', details: validation.error.issues });
   }
 
   const { name, phone, address, vehicleType, bookingDetails } = validation.data;
@@ -114,7 +114,7 @@ router.patch("/admin/:id", authenticateAdmin, async (req, res) => {
   const { id } = req.params;
   const validation = updateLeadStatusSchema.safeParse(req.body);
   if (!validation.success) {
-    return res.status(400).json({ error: 'Invalid input', details: validation.error.errors });
+    return res.status(400).json({ error: 'Invalid input', details: validation.error.issues });
   }
 
   const { status } = validation.data;

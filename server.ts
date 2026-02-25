@@ -3,6 +3,7 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import multer from 'multer';
+import cookieParser from 'cookie-parser';
 import { supabase } from "./src/services/supabase/client.ts";
 import { authenticateAdmin } from './src/server/middleware/auth';
 
@@ -23,6 +24,7 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+  app.use(cookieParser());
 
   // Register API routers
   app.use('/api/admin', authRouter);

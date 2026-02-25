@@ -34,7 +34,7 @@ router.get("/admin", authenticateAdmin, async (req, res) => {
 router.post("/admin", authenticateAdmin, async (req, res) => {
   const validation = routeSchema.safeParse(req.body);
   if (!validation.success) {
-    return res.status(400).json({ error: 'Invalid input', details: validation.error.errors });
+    return res.status(400).json({ error: 'Invalid input', details: validation.error.issues });
   }
 
   const { data, error } = await supabase
@@ -51,7 +51,7 @@ router.put("/admin/:id", authenticateAdmin, async (req, res) => {
   const { id } = req.params;
   const validation = routeSchema.safeParse(req.body);
   if (!validation.success) {
-    return res.status(400).json({ error: 'Invalid input', details: validation.error.errors });
+    return res.status(400).json({ error: 'Invalid input', details: validation.error.issues });
   }
 
   const { data, error } = await supabase

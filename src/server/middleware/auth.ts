@@ -4,8 +4,7 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'gobokaro_secret_2024_premium';
 
 export const authenticateAdmin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = (req as any).cookies.token;
 
   if (!token) return res.status(401).json({ error: "Access denied. No token provided." });
 

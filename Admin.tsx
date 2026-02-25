@@ -142,15 +142,42 @@ const Admin: React.FC = () => {
   const [editingTour, setEditingTour] = useState<Partial<TourPackage> | null>(null);
   const [isTourModalOpen, setIsTourModalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
 
-  const [token, setToken] = useState<string | null>(localStorage.getItem('admin_token'));
+  const [token, setToken] = useState<string | null>(null);
+  const isMounted = useRef(true);
 
   useEffect(() => {
-    if (token) {
-      setIsAuthenticated(true);
-      fetchData();
-    }
-  }, [token]);
+    // Set the mounted ref to false when the component unmounts
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    // We assume a cookie might exist on load. An API call will validate it.
+    // If the first API call fails with 401/403, the user will be logged out.
+    const checkAuth = async () => {
+      try {
+        // Make a lightweight request to check auth status
+        const res = await fetch('/api/leads/admin');
+        if (!isMounted.current) return;
+        if (res.ok) {
+          setToken('true'); // Dummy token to represent authenticated state
+          setIsAuthenticated(true);
+          fetchData();
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (err) {
+        if (isMounted.current) {
+          setIsAuthenticated(false);
+        }
+      }
+    };
+    checkAuth();
+  }, []);
 
   const addNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Math.random().toString(36).substr(2, 9);
@@ -163,7 +190,7 @@ const Admin: React.FC = () => {
   const fetchLeads = async () => {
     if (!token) return;
     try {
-      const res = await fetch('/api/leads/admin', { headers: { 'Authorization': `Bearer ${token}` } });
+      const res = await fetch('/api/leads/admin');
       if (res.ok) setLeads(await res.json());
     } catch (err) { addNotification('Failed to fetch leads', 'error'); }
   };
@@ -171,7 +198,7 @@ const Admin: React.FC = () => {
   const fetchRoutes = async () => {
     if (!token) return;
     try {
-      const res = await fetch('/api/routes/admin', { headers: { 'Authorization': `Bearer ${token}` } });
+      const res = await fetch('/api/routes/admin');
       if (res.ok) setRoutes(await res.json());
     } catch (err) { addNotification('Failed to fetch routes', 'error'); }
   };
@@ -179,7 +206,7 @@ const Admin: React.FC = () => {
   const fetchCars = async () => {
     if (!token) return;
     try {
-      const res = await fetch('/api/cars/admin', { headers: { 'Authorization': `Bearer ${token}` } });
+      const res = await fetch('/api/cars/admin');
       if (res.ok) setCars(await res.json());
     } catch (err) { addNotification('Failed to fetch cars', 'error'); }
   };
@@ -187,7 +214,7 @@ const Admin: React.FC = () => {
   const fetchTours = async () => {
     if (!token) return;
     try {
-      const res = await fetch('/api/tour-packages/admin', { headers: { 'Authorization': `Bearer ${token}` } });
+      const res = await fetch('/api/tour-packages/admin');
       if (res.ok) setTourPackages(await res.json());
     } catch (err) { addNotification('Failed to fetch tours', 'error'); }
   };
@@ -196,13 +223,14 @@ const Admin: React.FC = () => {
     if (!token) return;
     setLoading(true);
     try {
-      const headers = { 'Authorization': `Bearer ${token}` };
       const [leadsRes, routesRes, carsRes, toursRes] = await Promise.all([
-        fetch('/api/leads/admin', { headers }),
-        fetch('/api/routes/admin', { headers }),
-        fetch('/api/cars/admin', { headers }),
-        fetch('/api/tour-packages/admin', { headers })
+        fetch('/api/leads/admin'),
+        fetch('/api/routes/admin'),
+        fetch('/api/cars/admin'),
+        fetch('/api/tour-packages/admin')
       ]);
+
+      if (!isMounted.current) return;
 
       if (leadsRes.status === 403 || leadsRes.status === 401) {
         handleLogout();
@@ -217,9 +245,13 @@ const Admin: React.FC = () => {
       if (carsRes.ok) setCars(await carsRes.json());
       if (toursRes.ok) setTourPackages(await toursRes.json());
     } catch (err) {
-      addNotification('Failed to fetch data', 'error');
+      if (isMounted.current) {
+        addNotification('Failed to fetch data', 'error');
+      }
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -228,8 +260,7 @@ const Admin: React.FC = () => {
       const response = await fetch(`/api/leads/admin/${id}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ status })
       });
@@ -251,8 +282,7 @@ const Admin: React.FC = () => {
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(editingRoute)
       });
@@ -267,12 +297,32 @@ const Admin: React.FC = () => {
     }
   };
 
-  const handleDeleteRoute = async (id: string) => {
+  const handleDeleteRoute = (id: string) => {
+    setConfirmAction(() => async () => {
+      try {
+        const response = await fetch(`/api/routes/admin/${id}`, {
+          method: 'DELETE'
+        });
+        if (response.ok) {
+          addNotification('Route deleted', 'success');
+          fetchRoutes();
+        } else {
+          const err = await response.json();
+          addNotification(err.error || 'Failed to delete route', 'error');
+        }
+      } catch (err) {
+        addNotification('Network error during deletion', 'error');
+      }
+      setIsConfirmModalOpen(false);
+    });
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleDeleteRouteWithConfirmation = async (id: string) => {
     if (!confirm('Are you sure you want to delete this route?')) return;
     try {
       const response = await fetch(`/api/routes/admin/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        method: 'DELETE'
       });
       if (response.ok) {
         addNotification('Route deleted', 'success');
@@ -295,8 +345,7 @@ const Admin: React.FC = () => {
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(editingCar)
       });
@@ -311,12 +360,32 @@ const Admin: React.FC = () => {
     }
   };
 
-  const handleDeleteCar = async (id: string) => {
+  const handleDeleteCar = (id: string) => {
+    setConfirmAction(() => async () => {
+      try {
+        const response = await fetch(`/api/cars/admin/${id}`, {
+          method: 'DELETE'
+        });
+        if (response.ok) {
+          addNotification('Car deleted', 'success');
+          fetchCars();
+        } else {
+          const err = await response.json();
+          addNotification(err.error || 'Failed to delete car', 'error');
+        }
+      } catch (err) {
+        addNotification('Network error during deletion', 'error');
+      }
+      setIsConfirmModalOpen(false);
+    });
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleDeleteCarWithConfirmation = async (id: string) => {
     if (!confirm('Are you sure you want to delete this car?')) return;
     try {
       const response = await fetch(`/api/cars/admin/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        method: 'DELETE'
       });
       if (response.ok) {
         addNotification('Car deleted', 'success');
@@ -339,8 +408,7 @@ const Admin: React.FC = () => {
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(editingTour)
       });
@@ -355,12 +423,29 @@ const Admin: React.FC = () => {
     }
   };
 
-  const handleDeleteTour = async (id: string) => {
+  const handleDeleteTour = (id: string) => {
+    setConfirmAction(() => async () => {
+      try {
+        const response = await fetch(`/api/tour-packages/admin/${id}`, {
+          method: 'DELETE'
+        });
+        if (response.ok) {
+          addNotification('Tour deleted', 'success');
+          fetchTours();
+        }
+      } catch (err) {
+        addNotification('Failed to delete tour', 'error');
+      }
+      setIsConfirmModalOpen(false);
+    });
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleDeleteTourWithConfirmation = async (id: string) => {
     if (!confirm('Are you sure you want to delete this tour package?')) return;
     try {
       const response = await fetch(`/api/tour-packages/admin/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        method: 'DELETE'
       });
       if (response.ok) {
         addNotification('Tour deleted', 'success');
@@ -382,9 +467,7 @@ const Admin: React.FC = () => {
     try {
       const response = await fetch('/api/admin/upload-image', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
+
         body: formData
       });
 
@@ -411,11 +494,11 @@ const Admin: React.FC = () => {
         body: JSON.stringify({ password })
       });
       const data = await response.json();
-      if (response.ok && data.token) {
-        localStorage.setItem('admin_token', data.token);
-        setToken(data.token);
+      if (response.ok) {
+        setToken('true');
         setIsAuthenticated(true);
         addNotification('Welcome back, Admin', 'success');
+        fetchData();
       } else {
         setError(data.error || 'Invalid password');
       }
@@ -424,11 +507,16 @@ const Admin: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin_token');
-    setToken(null);
-    setIsAuthenticated(false);
-    setPassword('');
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      setToken(null);
+      setIsAuthenticated(false);
+      setPassword('');
+      addNotification('Logged out successfully', 'success');
+    } catch (err) {
+      addNotification('Logout failed', 'error');
+    }
   };
 
   if (!isAuthenticated) {
@@ -1130,11 +1218,32 @@ const Admin: React.FC = () => {
           <button 
             type="submit"
             disabled={isUploading}
-            className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+            className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
           >
-            {editingTour?.id ? 'Update Package' : 'Create Package'}
+            {isUploading ? 'Uploading...' : (editingTour?.id ? 'Update Package' : 'Create Package')}
           </button>
         </form>
+      </Modal>
+
+      {/* Confirmation Modal */}
+      <Modal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} title="Confirm Action">
+        <div className="space-y-6">
+          <p className="text-gray-500 font-medium">Are you sure you want to proceed with this action? This cannot be undone.</p>
+          <div className="flex justify-end gap-4">
+            <button 
+              onClick={() => setIsConfirmModalOpen(false)} 
+              className="px-6 py-3 bg-gray-100 text-gray-900 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-gray-200 transition-all"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={() => confirmAction && confirmAction()} 
+              className="px-6 py-3 bg-red-500 text-white rounded-xl font-black uppercase tracking-widest text-xs hover:bg-red-600 transition-all"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

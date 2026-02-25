@@ -48,7 +48,7 @@ router.get("/admin", authenticateAdmin, async (req, res) => {
 router.post("/admin", authenticateAdmin, async (req, res) => {
   const validation = tourPackageSchema.safeParse(req.body);
   if (!validation.success) {
-    return res.status(400).json({ error: 'Invalid input', details: validation.error.errors });
+    return res.status(400).json({ error: 'Invalid input', details: validation.error.issues });
   }
 
   const { data, error } = await supabase.from('tour_packages').insert([validation.data]).select().single();
@@ -60,7 +60,7 @@ router.put("/admin/:id", authenticateAdmin, async (req, res) => {
   const { id } = req.params;
   const validation = tourPackageSchema.safeParse(req.body);
   if (!validation.success) {
-    return res.status(400).json({ error: 'Invalid input', details: validation.error.errors });
+    return res.status(400).json({ error: 'Invalid input', details: validation.error.issues });
   }
 
   const { data, error } = await supabase
