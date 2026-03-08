@@ -52,7 +52,7 @@ const Services: React.FC = () => {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-[#A3E635] font-black text-[10px] tracking-[0.4em] uppercase"
+            className="text-primary-yellow font-black text-[10px] tracking-[0.4em] uppercase"
           >
             Premium Mobility
           </motion.span>
@@ -76,9 +76,9 @@ const Services: React.FC = () => {
               transition={{ delay: idx * 0.1 }}
               whileHover={{ y: -10 }}
               key={idx} 
-              className="p-10 rounded-[3rem] border border-gray-100 bg-white hover:border-[#A3E635] hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] transition-all duration-500 group flex flex-col"
+              className="p-10 rounded-[3rem] border border-gray-100 bg-white hover:border-primary-yellow hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] transition-all duration-500 group flex flex-col"
             >
-              <div className={`w-16 h-16 ${svc.color} group-hover:bg-[#A3E635] group-hover:text-black rounded-2xl flex items-center justify-center mb-8 transition-all duration-500 transform group-hover:rotate-12 shadow-sm`}>
+              <div className={`w-16 h-16 ${svc.color} group-hover:bg-primary-yellow group-hover:text-primary-blue rounded-2xl flex items-center justify-center mb-8 transition-all duration-500 transform group-hover:rotate-12 shadow-sm`}>
                 <svc.icon size={28} />
               </div>
               <h3 className="text-2xl font-black text-gray-900 mb-4 tracking-tight">{svc.title}</h3>
@@ -87,7 +87,7 @@ const Services: React.FC = () => {
               </p>
               <div className="mt-auto pt-8 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
                 <button className="text-[10px] font-black text-gray-900 flex items-center gap-2 uppercase tracking-widest">
-                  Learn More <ChevronRight size={14} className="text-[#A3E635]" />
+                  Learn More <ChevronRight size={14} className="text-primary-yellow" />
                 </button>
               </div>
             </motion.div>

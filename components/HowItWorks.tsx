@@ -27,7 +27,7 @@ const HowItWorks: React.FC = () => {
     <section className="py-24 bg-white px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <span className="text-[#A3E635] font-black text-sm tracking-widest uppercase">The Process</span>
+          <span className="text-primary-yellow font-black text-sm tracking-widest uppercase">The Process</span>
           <h2 className="text-3xl md:text-5xl font-black text-gray-900 mt-2 tracking-tight">How It Works</h2>
         </div>
 
@@ -37,9 +37,9 @@ const HowItWorks: React.FC = () => {
           
           {STEPS.map((s, i) => (
             <div key={i} className="flex flex-col items-center text-center group">
-              <div className="w-20 h-20 rounded-3xl bg-black text-[#A3E635] flex items-center justify-center text-3xl mb-8 relative shadow-xl transform group-hover:-translate-y-2 transition-transform duration-300">
+              <div className="w-20 h-20 rounded-3xl bg-primary-blue text-primary-yellow flex items-center justify-center text-3xl mb-8 relative shadow-xl transform group-hover:-translate-y-2 transition-transform duration-300">
                 <i className={`fas ${s.icon}`}></i>
-                <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-[#A3E635] text-black text-xs font-black flex items-center justify-center border-4 border-white">
+                <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary-yellow text-primary-blue text-xs font-black flex items-center justify-center border-4 border-white">
                   {s.step}
                 </div>
               </div>

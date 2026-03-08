@@ -13,13 +13,13 @@ const StickyCallButton: React.FC = () => {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         href={`tel:${CONTACT_PHONE}`}
-        className="relative w-16 h-16 rounded-2xl bg-[#A3E635] text-black shadow-[0_20px_40px_-10px_rgba(163,230,53,0.5)] flex items-center justify-center border-4 border-white transition-all"
+        className="relative w-16 h-16 rounded-2xl bg-primary-yellow text-primary-blue shadow-[0_20px_40px_-10px_rgba(245,166,35,0.5)] flex items-center justify-center border-4 border-white transition-all"
         aria-label="Call Support"
       >
         <Phone size={24} className="animate-[pulse_2s_infinite]" />
         <span className="absolute -top-2 -right-2 flex h-5 w-5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-40"></span>
-          <span className="relative inline-flex rounded-full h-5 w-5 bg-black border-2 border-white"></span>
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-blue opacity-40"></span>
+          <span className="relative inline-flex rounded-full h-5 w-5 bg-primary-blue border-2 border-white"></span>
         </span>
       </motion.a>
     </div>

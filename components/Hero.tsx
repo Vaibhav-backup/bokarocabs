@@ -109,7 +109,7 @@ const Hero: React.FC = () => {
 
       if (response.ok) {
         setIsSuccess(true);
-        const text = `Namaste Go Bokaro Cabs! My name is ${lead.name}. I want to book a ${lead.vehicleType} for ${booking.tripType}${booking.event ? ` (${booking.event})` : ''} from ${booking.from} to ${booking.to} on ${booking.date} at ${booking.time}. My address: ${lead.address}. Contact: ${lead.phone}`;
+        const text = `Namaste Bokaro Cab Service! My name is ${lead.name}. I want to book a ${lead.vehicleType} for ${booking.tripType}${booking.event ? ` (${booking.event})` : ''} from ${booking.from} to ${booking.to} on ${booking.date} at ${booking.time}. My address: ${lead.address}. Contact: ${lead.phone}`;
         window.open(`${WHATSAPP_LINK}?text=${encodeURIComponent(text)}`, '_blank');
         
         setTimeout(() => {
@@ -154,7 +154,7 @@ const Hero: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 px-5 py-2.5 rounded-full mb-8 shadow-2xl"
           >
-            <span className="flex h-2 w-2 rounded-full bg-[#A3E635] animate-pulse"></span>
+            <span className="flex h-2 w-2 rounded-full bg-primary-yellow animate-pulse"></span>
             <span className="text-[10px] md:text-xs font-black tracking-[0.3em] text-white uppercase">Bokaro's #1 Premium Cab Service</span>
           </motion.div>
           
@@ -164,8 +164,8 @@ const Hero: React.FC = () => {
             transition={{ delay: 0.2 }}
             className="text-5xl md:text-7xl lg:text-9xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl"
           >
-            Safar Shuru Karein <br/>
-            <span className="text-[#A3E635] italic">Go Bokaro</span> <span className="text-white">Cabs.</span>
+            SAFAR SHURU KAREIN <br/>
+            <span className="text-primary-yellow italic">BOKARO CABS</span> <span className="text-white">SERVICES KE SATH.</span>
           </motion.h1>
           
           <motion.p
@@ -200,10 +200,10 @@ const Hero: React.FC = () => {
                     : 'text-gray-400 hover:text-gray-600 hover:bg-white/50'
                   }`}
                 >
-                  <type.icon size={16} className={booking.tripType === type.id ? 'text-[#A3E635]' : 'text-gray-300 group-hover:text-gray-400'} />
+                  <type.icon size={16} className={booking.tripType === type.id ? 'text-primary-yellow' : 'text-gray-300 group-hover:text-gray-400'} />
                   {type.label}
                   {booking.tripType === type.id && (
-                    <motion.div layoutId="activeTab" className="absolute inset-0 border-2 border-[#A3E635]/20 rounded-2xl" />
+                    <motion.div layoutId="activeTab" className="absolute inset-0 border-2 border-primary-yellow/20 rounded-2xl" />
                   )}
                 </button>
               ))}
@@ -243,7 +243,7 @@ const Hero: React.FC = () => {
                     whileHover={{ rotate: 180 }}
                     type="button"
                     onClick={swapLocations}
-                    className="w-12 h-12 rounded-full border border-gray-100 bg-white shadow-lg flex items-center justify-center text-gray-400 hover:text-[#A3E635] hover:border-[#A3E635] transition-all duration-500"
+                    className="w-12 h-12 rounded-full border border-gray-100 bg-white shadow-lg flex items-center justify-center text-gray-400 hover:text-primary-yellow hover:border-primary-yellow transition-all duration-500"
                   >
                     <ArrowRightLeft size={20} />
                   </motion.button>
@@ -328,7 +328,7 @@ const Hero: React.FC = () => {
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     type="submit"
-                    className="w-full h-[84px] bg-black text-[#A3E635] rounded-[1.5rem] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)] transition-all group"
+                    className="w-full h-[84px] bg-primary-blue text-primary-yellow rounded-[1.5rem] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)] transition-all group"
                   >
                     SEARCH <Search size={18} className="group-hover:translate-x-1 transition-transform" />
                   </motion.button>
@@ -344,7 +344,7 @@ const Hero: React.FC = () => {
                     { icon: Clock, text: 'On-Time Pickup' }
                   ].map((benefit, i) => (
                     <div key={i} className="flex items-center gap-2.5">
-                      <benefit.icon size={14} className="text-[#A3E635]" />
+                      <benefit.icon size={14} className="text-primary-yellow" />
                       <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{benefit.text}</span>
                     </div>
                   ))}
@@ -369,8 +369,8 @@ const Hero: React.FC = () => {
               className="text-center group"
             >
               <div className="flex items-center justify-center gap-2 mb-1">
-                {stat.icon && <stat.icon size={20} className="text-[#A3E635]" />}
-                <h4 className="text-white text-3xl md:text-4xl font-black group-hover:text-[#A3E635] transition-colors">{stat.value}</h4>
+                {stat.icon && <stat.icon size={20} className="text-primary-yellow" />}
+                <h4 className="text-white text-3xl md:text-4xl font-black group-hover:text-primary-yellow transition-colors">{stat.value}</h4>
               </div>
               <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em]">{stat.label}</p>
             </motion.div>
@@ -381,7 +381,7 @@ const Hero: React.FC = () => {
       {/* Lead Form Modal */}
       <AnimatePresence>
         {showLeadForm && (
-          <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 bg-primary-blue/80 backdrop-blur-md">
             <motion.div 
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
@@ -389,11 +389,11 @@ const Hero: React.FC = () => {
               className="bg-white w-full max-w-md rounded-t-[3rem] md:rounded-[3rem] overflow-hidden shadow-2xl"
             >
               {/* Modal Header */}
-              <div className="bg-black text-white p-8 relative overflow-hidden">
+              <div className="bg-primary-blue text-white p-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-5">
                   <Users size={160} />
                 </div>
-                <h3 className="text-[#A3E635] font-black text-[10px] uppercase tracking-[0.4em] mb-4">Confirm Booking</h3>
+                <h3 className="text-primary-yellow font-black text-[10px] uppercase tracking-[0.4em] mb-4">Confirm Booking</h3>
                 <div className="flex items-center gap-4 text-3xl font-black tracking-tighter">
                   <span>{booking.from.split(' ')[0]}</span>
                   <ChevronRight size={24} className="text-white/20" />
@@ -415,7 +415,7 @@ const Hero: React.FC = () => {
                     animate={{ scale: 1, opacity: 1 }}
                     className="text-center py-12"
                   >
-                    <div className="w-24 h-24 bg-lime-100 text-lime-600 rounded-full flex items-center justify-center mx-auto mb-8">
+                    <div className="w-24 h-24 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-8">
                       <CheckCircle2 size={48} />
                     </div>
                     <h4 className="text-3xl font-black text-gray-900 mb-3">Booking Initiated!</h4>
@@ -431,7 +431,7 @@ const Hero: React.FC = () => {
                         value={lead.name}
                         onChange={(e) => setLead(prev => ({ ...prev, name: e.target.value }))}
                         placeholder="Enter your name"
-                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 focus:border-black focus:bg-white outline-none transition-all"
+                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 focus:border-primary-blue focus:bg-white outline-none transition-all"
                       />
                     </div>
                     <div className="space-y-2">
@@ -442,7 +442,7 @@ const Hero: React.FC = () => {
                         value={lead.phone}
                         onChange={(e) => setLead(prev => ({ ...prev, phone: e.target.value }))}
                         placeholder="Enter mobile number"
-                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 focus:border-black focus:bg-white outline-none transition-all"
+                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 focus:border-primary-blue focus:bg-white outline-none transition-all"
                       />
                     </div>
                     <div className="space-y-2">
@@ -453,7 +453,7 @@ const Hero: React.FC = () => {
                         onChange={(e) => setLead(prev => ({ ...prev, address: e.target.value }))}
                         placeholder="Enter full address"
                         rows={2}
-                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 focus:border-black focus:bg-white outline-none transition-all resize-none"
+                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 focus:border-primary-blue focus:bg-white outline-none transition-all resize-none"
                       />
                     </div>
                     <div className="space-y-2">
@@ -464,7 +464,7 @@ const Hero: React.FC = () => {
                             key={car.id}
                             type="button"
                             onClick={() => setLead(prev => ({ ...prev, vehicleType: car.name }))}
-                            className={`p-5 rounded-2xl border-2 flex flex-col items-center justify-center transition-all ${lead.vehicleType === car.name ? 'border-black bg-black text-[#A3E635]' : 'border-gray-100 bg-gray-50 text-gray-400'}`}
+                            className={`p-5 rounded-2xl border-2 flex flex-col items-center justify-center transition-all ${lead.vehicleType === car.name ? 'border-primary-blue bg-primary-blue text-primary-yellow' : 'border-gray-100 bg-gray-50 text-gray-400'}`}
                           >
                             <span className="font-black text-xs uppercase tracking-widest">{car.name}</span>
                             <span className={`text-[8px] font-bold mt-1 ${lead.vehicleType === car.name ? 'text-white/60' : 'text-gray-400'}`}>{car.models}</span>
@@ -478,7 +478,7 @@ const Hero: React.FC = () => {
                       whileTap={{ scale: 0.98 }}
                       disabled={isSubmitting}
                       type="submit"
-                      className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-3 disabled:opacity-50"
+                      className="w-full py-5 bg-primary-blue text-primary-yellow rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl flex items-center justify-center gap-3 disabled:opacity-50"
                     >
                       {isSubmitting ? 'Processing...' : 'Confirm Booking'}
                     </motion.button>

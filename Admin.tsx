@@ -142,42 +142,15 @@ const Admin: React.FC = () => {
   const [editingTour, setEditingTour] = useState<Partial<TourPackage> | null>(null);
   const [isTourModalOpen, setIsTourModalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
 
-  const [token, setToken] = useState<string | null>(null);
-  const isMounted = useRef(true);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('admin_token'));
 
   useEffect(() => {
-    // Set the mounted ref to false when the component unmounts
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    // We assume a cookie might exist on load. An API call will validate it.
-    // If the first API call fails with 401/403, the user will be logged out.
-    const checkAuth = async () => {
-      try {
-        // Make a lightweight request to check auth status
-        const res = await fetch('/api/leads/admin');
-        if (!isMounted.current) return;
-        if (res.ok) {
-          setToken('true'); // Dummy token to represent authenticated state
-          setIsAuthenticated(true);
-          fetchData();
-        } else {
-          setIsAuthenticated(false);
-        }
-      } catch (err) {
-        if (isMounted.current) {
-          setIsAuthenticated(false);
-        }
-      }
-    };
-    checkAuth();
-  }, []);
+    if (token) {
+      setIsAuthenticated(true);
+      fetchData();
+    }
+  }, [token]);
 
   const addNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Math.random().toString(36).substr(2, 9);
@@ -187,50 +160,17 @@ const Admin: React.FC = () => {
     }, 3000);
   };
 
-  const fetchLeads = async () => {
-    if (!token) return;
-    try {
-      const res = await fetch('/api/leads/admin');
-      if (res.ok) setLeads(await res.json());
-    } catch (err) { addNotification('Failed to fetch leads', 'error'); }
-  };
-
-  const fetchRoutes = async () => {
-    if (!token) return;
-    try {
-      const res = await fetch('/api/routes/admin');
-      if (res.ok) setRoutes(await res.json());
-    } catch (err) { addNotification('Failed to fetch routes', 'error'); }
-  };
-
-  const fetchCars = async () => {
-    if (!token) return;
-    try {
-      const res = await fetch('/api/cars/admin');
-      if (res.ok) setCars(await res.json());
-    } catch (err) { addNotification('Failed to fetch cars', 'error'); }
-  };
-
-  const fetchTours = async () => {
-    if (!token) return;
-    try {
-      const res = await fetch('/api/tour-packages/admin');
-      if (res.ok) setTourPackages(await res.json());
-    } catch (err) { addNotification('Failed to fetch tours', 'error'); }
-  };
-
   const fetchData = async () => {
     if (!token) return;
     setLoading(true);
     try {
+      const headers = { 'Authorization': `Bearer ${token}` };
       const [leadsRes, routesRes, carsRes, toursRes] = await Promise.all([
-        fetch('/api/leads/admin'),
-        fetch('/api/routes/admin'),
-        fetch('/api/cars/admin'),
-        fetch('/api/tour-packages/admin')
+        fetch('/api/admin/leads', { headers }),
+        fetch('/api/admin/routes', { headers }),
+        fetch('/api/admin/cars', { headers }),
+        fetch('/api/admin/tour-packages', { headers })
       ]);
-
-      if (!isMounted.current) return;
 
       if (leadsRes.status === 403 || leadsRes.status === 401) {
         handleLogout();
@@ -245,28 +185,25 @@ const Admin: React.FC = () => {
       if (carsRes.ok) setCars(await carsRes.json());
       if (toursRes.ok) setTourPackages(await toursRes.json());
     } catch (err) {
-      if (isMounted.current) {
-        addNotification('Failed to fetch data', 'error');
-      }
+      addNotification('Failed to fetch data', 'error');
     } finally {
-      if (isMounted.current) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
   const updateLeadStatus = async (id: string, status: string) => {
     try {
-      const response = await fetch(`/api/leads/admin/${id}`, {
+      const response = await fetch(`/api/admin/leads/${id}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ status })
       });
       if (response.ok) {
         addNotification('Status updated', 'success');
-        fetchLeads();
+        fetchData();
       }
     } catch (err) {
       addNotification('Failed to update status', 'error');
@@ -277,12 +214,11 @@ const Admin: React.FC = () => {
     e.preventDefault();
     if (!editingRoute) return;
     try {
-      const url = editingRoute.id ? `/api/routes/admin/${editingRoute.id}` : '/api/routes/admin';
-      const method = editingRoute.id ? 'PUT' : 'POST';
-      const response = await fetch(url, {
-        method,
+      const response = await fetch('/api/admin/routes', {
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(editingRoute)
       });
@@ -290,43 +226,23 @@ const Admin: React.FC = () => {
         addNotification(editingRoute.id ? 'Route updated' : 'Route added', 'success');
         setIsRouteModalOpen(false);
         setEditingRoute(null);
-        fetchRoutes();
+        fetchData();
       }
     } catch (err) {
       addNotification('Failed to save route', 'error');
     }
   };
 
-  const handleDeleteRoute = (id: string) => {
-    setConfirmAction(() => async () => {
-      try {
-        const response = await fetch(`/api/routes/admin/${id}`, {
-          method: 'DELETE'
-        });
-        if (response.ok) {
-          addNotification('Route deleted', 'success');
-          fetchRoutes();
-        } else {
-          const err = await response.json();
-          addNotification(err.error || 'Failed to delete route', 'error');
-        }
-      } catch (err) {
-        addNotification('Network error during deletion', 'error');
-      }
-      setIsConfirmModalOpen(false);
-    });
-    setIsConfirmModalOpen(true);
-  };
-
-  const handleDeleteRouteWithConfirmation = async (id: string) => {
+  const handleDeleteRoute = async (id: string) => {
     if (!confirm('Are you sure you want to delete this route?')) return;
     try {
-      const response = await fetch(`/api/routes/admin/${id}`, {
-        method: 'DELETE'
+      const response = await fetch(`/api/admin/routes/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
         addNotification('Route deleted', 'success');
-        fetchRoutes();
+        fetchData();
       } else {
         const err = await response.json();
         addNotification(err.error || 'Failed to delete route', 'error');
@@ -340,12 +256,11 @@ const Admin: React.FC = () => {
     e.preventDefault();
     if (!editingCar) return;
     try {
-      const url = editingCar.id ? `/api/cars/admin/${editingCar.id}` : '/api/cars/admin';
-      const method = editingCar.id ? 'PUT' : 'POST';
-      const response = await fetch(url, {
-        method,
+      const response = await fetch('/api/admin/cars', {
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(editingCar)
       });
@@ -353,43 +268,23 @@ const Admin: React.FC = () => {
         addNotification(editingCar.id ? 'Car updated' : 'Car added', 'success');
         setIsCarModalOpen(false);
         setEditingCar(null);
-        fetchCars();
+        fetchData();
       }
     } catch (err) {
       addNotification('Failed to save car', 'error');
     }
   };
 
-  const handleDeleteCar = (id: string) => {
-    setConfirmAction(() => async () => {
-      try {
-        const response = await fetch(`/api/cars/admin/${id}`, {
-          method: 'DELETE'
-        });
-        if (response.ok) {
-          addNotification('Car deleted', 'success');
-          fetchCars();
-        } else {
-          const err = await response.json();
-          addNotification(err.error || 'Failed to delete car', 'error');
-        }
-      } catch (err) {
-        addNotification('Network error during deletion', 'error');
-      }
-      setIsConfirmModalOpen(false);
-    });
-    setIsConfirmModalOpen(true);
-  };
-
-  const handleDeleteCarWithConfirmation = async (id: string) => {
+  const handleDeleteCar = async (id: string) => {
     if (!confirm('Are you sure you want to delete this car?')) return;
     try {
-      const response = await fetch(`/api/cars/admin/${id}`, {
-        method: 'DELETE'
+      const response = await fetch(`/api/admin/cars/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
         addNotification('Car deleted', 'success');
-        fetchCars();
+        fetchData();
       } else {
         const err = await response.json();
         addNotification(err.error || 'Failed to delete car', 'error');
@@ -403,12 +298,11 @@ const Admin: React.FC = () => {
     e.preventDefault();
     if (!editingTour) return;
     try {
-      const url = editingTour.id ? `/api/tour-packages/admin/${editingTour.id}` : '/api/tour-packages/admin';
-      const method = editingTour.id ? 'PUT' : 'POST';
-      const response = await fetch(url, {
-        method,
+      const response = await fetch('/api/admin/tour-packages', {
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(editingTour)
       });
@@ -416,40 +310,23 @@ const Admin: React.FC = () => {
         addNotification(editingTour.id ? 'Tour updated' : 'Tour added', 'success');
         setIsTourModalOpen(false);
         setEditingTour(null);
-        fetchTours();
+        fetchData();
       }
     } catch (err) {
       addNotification('Failed to save tour', 'error');
     }
   };
 
-  const handleDeleteTour = (id: string) => {
-    setConfirmAction(() => async () => {
-      try {
-        const response = await fetch(`/api/tour-packages/admin/${id}`, {
-          method: 'DELETE'
-        });
-        if (response.ok) {
-          addNotification('Tour deleted', 'success');
-          fetchTours();
-        }
-      } catch (err) {
-        addNotification('Failed to delete tour', 'error');
-      }
-      setIsConfirmModalOpen(false);
-    });
-    setIsConfirmModalOpen(true);
-  };
-
-  const handleDeleteTourWithConfirmation = async (id: string) => {
+  const handleDeleteTour = async (id: string) => {
     if (!confirm('Are you sure you want to delete this tour package?')) return;
     try {
-      const response = await fetch(`/api/tour-packages/admin/${id}`, {
-        method: 'DELETE'
+      const response = await fetch(`/api/admin/tour-packages/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
         addNotification('Tour deleted', 'success');
-        fetchTours();
+        fetchData();
       }
     } catch (err) {
       addNotification('Failed to delete tour', 'error');
@@ -467,7 +344,9 @@ const Admin: React.FC = () => {
     try {
       const response = await fetch('/api/admin/upload-image', {
         method: 'POST',
-
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData
       });
 
@@ -494,11 +373,11 @@ const Admin: React.FC = () => {
         body: JSON.stringify({ password })
       });
       const data = await response.json();
-      if (response.ok) {
-        setToken('true');
+      if (response.ok && data.token) {
+        localStorage.setItem('admin_token', data.token);
+        setToken(data.token);
         setIsAuthenticated(true);
         addNotification('Welcome back, Admin', 'success');
-        fetchData();
       } else {
         setError(data.error || 'Invalid password');
       }
@@ -507,16 +386,11 @@ const Admin: React.FC = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/admin/logout', { method: 'POST' });
-      setToken(null);
-      setIsAuthenticated(false);
-      setPassword('');
-      addNotification('Logged out successfully', 'success');
-    } catch (err) {
-      addNotification('Logout failed', 'error');
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('admin_token');
+    setToken(null);
+    setIsAuthenticated(false);
+    setPassword('');
   };
 
   if (!isAuthenticated) {
@@ -528,11 +402,11 @@ const Admin: React.FC = () => {
           className="bg-white w-full max-w-md rounded-[3rem] p-10 shadow-2xl"
         >
           <div className="text-center mb-10">
-            <div className="w-20 h-20 bg-black rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-              <ShieldCheck className="text-[#A3E635]" size={32} />
+            <div className="w-20 h-20 bg-primary-blue rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+              <ShieldCheck className="text-primary-yellow" size={32} />
             </div>
             <h1 className="text-3xl font-black text-gray-900 tracking-tight">Admin Portal</h1>
-            <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mt-2">Go Bokaro Cabs Management</p>
+            <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mt-2">Bokaro Cab Service Management</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
@@ -542,7 +416,7 @@ const Admin: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-5 font-bold text-gray-900 focus:border-black focus:bg-white outline-none transition-all text-center tracking-widest"
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-5 font-bold text-gray-900 focus:border-primary-blue focus:bg-white outline-none transition-all text-center tracking-widest"
               />
             </div>
             {error && (
@@ -556,7 +430,7 @@ const Admin: React.FC = () => {
             )}
             <button 
               type="submit"
-              className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
+              className="w-full py-5 bg-primary-blue text-primary-yellow rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
             >
               Unlock Dashboard
             </button>
@@ -579,7 +453,7 @@ const Admin: React.FC = () => {
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 20, scale: 0.9 }}
               className={`pointer-events-auto px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border ${
-                n.type === 'success' ? 'bg-white border-lime-100 text-lime-600' :
+                n.type === 'success' ? 'bg-white border-yellow-100 text-primary-blue' :
                 n.type === 'error' ? 'bg-white border-red-100 text-red-600' :
                 'bg-white border-blue-100 text-blue-600'
               }`}
@@ -593,12 +467,12 @@ const Admin: React.FC = () => {
       </div>
 
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex w-72 bg-black text-white flex-col p-8 sticky top-0 h-screen">
+      <aside className="hidden md:flex w-72 bg-primary-blue text-white flex-col p-8 sticky top-0 h-screen">
         <div className="flex items-center gap-4 mb-12">
-          <div className="w-12 h-12 bg-[#A3E635] rounded-2xl flex items-center justify-center text-black font-black text-xl">GB</div>
+          <div className="w-12 h-12 bg-primary-yellow rounded-2xl flex items-center justify-center text-primary-blue font-black text-xl">BC</div>
           <div>
             <h1 className="text-lg font-black tracking-tighter">ADMIN</h1>
-            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Control Panel</p>
+            <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Control Panel</p>
           </div>
         </div>
 
@@ -614,8 +488,8 @@ const Admin: React.FC = () => {
               onClick={() => setActiveTab(item.id as any)}
               className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all ${
                 activeTab === item.id 
-                ? 'bg-[#A3E635] text-black shadow-[0_10px_20px_-5px_rgba(163,230,53,0.3)]' 
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                ? 'bg-primary-yellow text-primary-blue shadow-[0_10px_20px_-5px_rgba(245,166,35,0.3)]' 
+                : 'text-white/60 hover:text-white hover:bg-white/5'
               }`}
             >
               <item.icon size={18} />
@@ -636,19 +510,19 @@ const Admin: React.FC = () => {
       </aside>
 
       {/* Mobile Header */}
-      <header className="md:hidden bg-black text-white p-6 sticky top-0 z-50 flex justify-between items-center">
+      <header className="md:hidden bg-primary-blue text-white p-6 sticky top-0 z-50 flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#A3E635] rounded-xl flex items-center justify-center text-black font-black">GB</div>
+          <div className="w-10 h-10 bg-primary-yellow rounded-xl flex items-center justify-center text-primary-blue font-black">BC</div>
           <h1 className="text-lg font-black tracking-tight uppercase">{activeTab}</h1>
         </div>
         <div className="flex gap-2">
-          <button onClick={fetchData} className="p-2 text-gray-400 hover:text-white"><RefreshCw size={20} /></button>
-          <button onClick={handleLogout} className="p-2 text-red-400"><LogOut size={20} /></button>
+          <button onClick={fetchData} className="p-2 text-white/60 hover:text-white"><RefreshCw size={20} /></button>
+          <button onClick={handleLogout} className="p-2 text-white/80"><LogOut size={20} /></button>
         </div>
       </header>
 
       {/* Mobile Nav */}
-      <nav className="md:hidden fixed bottom-6 left-6 right-6 z-50 bg-black/80 backdrop-blur-xl border border-white/10 rounded-3xl p-2 flex gap-1 shadow-2xl">
+      <nav className="md:hidden fixed bottom-6 left-6 right-6 z-50 bg-primary-blue/90 backdrop-blur-xl border border-white/10 rounded-3xl p-2 flex gap-1 shadow-2xl">
         {[
           { id: 'leads', icon: LayoutDashboard },
           { id: 'routes', icon: MapPin },
@@ -659,7 +533,7 @@ const Admin: React.FC = () => {
             key={item.id}
             onClick={() => setActiveTab(item.id as any)}
             className={`flex-1 py-4 rounded-2xl flex items-center justify-center transition-all ${
-              activeTab === item.id ? 'bg-[#A3E635] text-black' : 'text-gray-500'
+              activeTab === item.id ? 'bg-primary-yellow text-primary-blue' : 'text-white/40'
             }`}
           >
             <item.icon size={20} />
@@ -699,7 +573,7 @@ const Admin: React.FC = () => {
                   setIsTourModalOpen(true);
                 }
               }}
-              className="bg-black text-[#A3E635] px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
+              className="bg-primary-blue text-primary-yellow px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
             >
               <Plus size={18} />
               Add New {activeTab === 'routes' ? 'Route' : activeTab === 'cars' ? 'Car' : 'Package'}
@@ -716,7 +590,7 @@ const Admin: React.FC = () => {
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {[
                   { label: 'Total', value: leads.length, icon: Users, color: 'text-gray-400' },
-                  { label: 'New', value: leads.filter(l => l.status === 'new').length, icon: Clock, color: 'text-lime-500' },
+                  { label: 'New', value: leads.filter(l => l.status === 'new').length, icon: Clock, color: 'text-primary-blue' },
                   { label: 'Booked', value: leads.filter(l => l.status === 'booked').length, icon: CheckCircle, color: 'text-blue-500' },
                   { label: 'Cancelled', value: leads.filter(l => l.status === 'cancelled').length, icon: XCircle, color: 'text-red-500' },
                 ].map((stat, i) => (
@@ -761,7 +635,7 @@ const Admin: React.FC = () => {
                           <div className="flex items-center gap-3 mb-2">
                             <h4 className="text-xl font-black text-gray-900 tracking-tight">{lead.name}</h4>
                             <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                              lead.status === 'new' ? 'bg-lime-100 text-lime-600' :
+                              lead.status === 'new' ? 'bg-yellow-100 text-primary-blue' :
                               lead.status === 'contacted' ? 'bg-blue-100 text-blue-600' :
                               lead.status === 'booked' ? 'bg-green-100 text-green-600' :
                               'bg-gray-100 text-gray-500'
@@ -813,7 +687,7 @@ const Admin: React.FC = () => {
                             </select>
                             
                             <div className="flex gap-2">
-                              <a href={`tel:${lead.phone}`} className="w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center hover:bg-gray-800 transition-all">
+                              <a href={`tel:${lead.phone}`} className="w-12 h-12 bg-primary-blue text-primary-yellow rounded-xl flex items-center justify-center hover:bg-primary-dark transition-all">
                                 <Phone size={18} />
                               </a>
                               <a 
@@ -860,7 +734,7 @@ const Admin: React.FC = () => {
                           setEditingRoute(route);
                           setIsRouteModalOpen(true);
                         }}
-                        className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center hover:bg-black hover:text-[#A3E635] transition-all"
+                        className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center hover:bg-primary-blue hover:text-primary-yellow transition-all"
                       >
                         <Edit2 size={16} />
                       </button>
@@ -899,7 +773,7 @@ const Admin: React.FC = () => {
                   className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm hover:shadow-xl transition-all group"
                 >
                   <div className="flex justify-between items-start mb-6">
-                    <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-black group-hover:text-[#A3E635] transition-all duration-500">
+                    <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-primary-blue group-hover:text-primary-yellow transition-all duration-500">
                       <CarIcon size={24} />
                     </div>
                     <div className="flex gap-2">
@@ -908,7 +782,7 @@ const Admin: React.FC = () => {
                           setEditingCar(car);
                           setIsCarModalOpen(true);
                         }}
-                        className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center hover:bg-black hover:text-[#A3E635] transition-all"
+                        className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center hover:bg-primary-blue hover:text-primary-yellow transition-all"
                       >
                         <Edit2 size={16} />
                       </button>
@@ -963,7 +837,7 @@ const Admin: React.FC = () => {
                           setEditingTour(pkg);
                           setIsTourModalOpen(true);
                         }}
-                        className="w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-900 rounded-xl flex items-center justify-center hover:bg-black hover:text-[#A3E635] transition-all shadow-lg"
+                        className="w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-900 rounded-xl flex items-center justify-center hover:bg-primary-blue hover:text-primary-yellow transition-all shadow-lg"
                       >
                         <Edit2 size={16} />
                       </button>
@@ -978,7 +852,7 @@ const Admin: React.FC = () => {
                   <div className="p-8">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-xl font-black text-gray-900 tracking-tight">{pkg.title}</h3>
-                      <span className="text-[#A3E635] font-black">₹{pkg.price}</span>
+                      <span className="text-primary-blue font-black">₹{pkg.price}</span>
                     </div>
                     <p className="text-gray-400 text-sm line-clamp-2 mb-4">{pkg.description}</p>
                     <div className="flex items-center gap-2 text-gray-500">
@@ -1061,7 +935,7 @@ const Admin: React.FC = () => {
           </div>
           <button 
             type="submit" 
-            className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
+            className="w-full py-5 bg-primary-blue text-primary-yellow rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
           >
             {editingRoute?.id ? 'Update Route' : 'Create Route'}
           </button>
@@ -1124,7 +998,7 @@ const Admin: React.FC = () => {
           </div>
           <button 
             type="submit" 
-            className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
+            className="w-full py-5 bg-primary-blue text-primary-yellow rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
           >
             {editingCar?.id ? 'Update Vehicle' : 'Add to Fleet'}
           </button>
@@ -1190,7 +1064,7 @@ const Admin: React.FC = () => {
           <div className="space-y-1">
             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Package Image</label>
             <div className="relative group">
-              <div className={`w-full h-40 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden transition-all ${isUploading ? 'opacity-50' : 'hover:border-[#A3E635]'}`}>
+              <div className={`w-full h-40 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden transition-all ${isUploading ? 'opacity-50' : 'hover:border-primary-yellow'}`}>
                 {editingTour?.image_url ? (
                   <img src={editingTour.image_url} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
@@ -1209,7 +1083,7 @@ const Admin: React.FC = () => {
               </div>
               {isUploading && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <RefreshCw className="animate-spin text-black" size={24} />
+                  <RefreshCw className="animate-spin text-primary-blue" size={24} />
                 </div>
               )}
             </div>
@@ -1218,32 +1092,11 @@ const Admin: React.FC = () => {
           <button 
             type="submit"
             disabled={isUploading}
-            className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+            className="w-full py-5 bg-primary-blue text-primary-yellow rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
           >
-            {isUploading ? 'Uploading...' : (editingTour?.id ? 'Update Package' : 'Create Package')}
+            {editingTour?.id ? 'Update Package' : 'Create Package'}
           </button>
         </form>
-      </Modal>
-
-      {/* Confirmation Modal */}
-      <Modal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} title="Confirm Action">
-        <div className="space-y-6">
-          <p className="text-gray-500 font-medium">Are you sure you want to proceed with this action? This cannot be undone.</p>
-          <div className="flex justify-end gap-4">
-            <button 
-              onClick={() => setIsConfirmModalOpen(false)} 
-              className="px-6 py-3 bg-gray-100 text-gray-900 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-gray-200 transition-all"
-            >
-              Cancel
-            </button>
-            <button 
-              onClick={() => confirmAction && confirmAction()} 
-              className="px-6 py-3 bg-red-500 text-white rounded-xl font-black uppercase tracking-widest text-xs hover:bg-red-600 transition-all"
-            >
-              Confirm
-            </button>
-          </div>
-        </div>
       </Modal>
     </div>
   );

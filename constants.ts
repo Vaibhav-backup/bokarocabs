@@ -12,7 +12,8 @@ export const ROUTES_PRICING: RoutePrice[] = [
   { destination: 'Ramgarh', time: '2h 3m', distance: '85.3 km', sedan: 1999, ertiga: 2599 },
 ];
 
-export const CONTACT_PHONE = '8271212333';
-export const WHATSAPP_LINK = `https://wa.me/918271212333`;
-export const INSTAGRAM_LINK = 'https://www.instagram.com/gobokarocabs/';
-export const FACEBOOK_LINK = 'https://www.facebook.com/profile.php?id=61586712680020';
+export const CONTACT_PHONE = '8210191320';
+export const WHATSAPP_LINK = `https://wa.me/918210191320`;
+export const INSTAGRAM_LINK = 'https://www.instagram.com/bokarocabservice/';
+export const FACEBOOK_LINK = 'https://www.facebook.com/bokarocabservice/';
+export const CONTACT_EMAIL = 'support@bokarocabservice.com';

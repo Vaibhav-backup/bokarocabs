@@ -13,7 +13,7 @@ const PrivacyPolicy: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <Link 
           to="/"
-          className="group flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-[#A3E635] transition-colors mb-8 uppercase tracking-widest"
+          className="group flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-primary-blue transition-colors mb-8 uppercase tracking-widest"
         >
           <i className="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
           Back to Home
@@ -24,12 +24,12 @@ const PrivacyPolicy: React.FC = () => {
           
           <div className="space-y-8 text-gray-600 leading-relaxed font-medium">
             <p>
-              At Go Bokaro Cabs, we respect your privacy and are committed to protecting the personal information you share with us. This Privacy Policy explains how we collect, use, store, and safeguard your information when you use our website, contact us, or book our services through calls, WhatsApp, or other communication channels.
+              At Bokaro Cab Service, we respect your privacy and are committed to protecting the personal information you share with us. This Privacy Policy explains how we collect, use, store, and safeguard your information when you use our website, contact us, or book our services through calls, WhatsApp, or other communication channels.
             </p>
 
             <div>
               <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-4">Information We Collect</h2>
-              <p className="mb-4">We may collect the following types of information when you interact with Go Bokaro Cabs:</p>
+              <p className="mb-4">We may collect the following types of information when you interact with Bokaro Cab Service:</p>
               <ul className="list-disc pl-5 space-y-2">
                 <li>Name, phone number, and contact details</li>
                 <li>Pickup and drop locations</li>
@@ -56,7 +56,7 @@ const PrivacyPolicy: React.FC = () => {
             <div>
               <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-4">WhatsApp Communication Privacy</h2>
               <p className="mb-4">
-                Go Bokaro Cabs provides booking assistance and customer support through WhatsApp for user convenience. When you contact us via WhatsApp, we may collect your name, phone number, messages, booking details, travel preferences, and any media you choose to share.
+                Bokaro Cab Service provides booking assistance and customer support through WhatsApp for user convenience. When you contact us via WhatsApp, we may collect your name, phone number, messages, booking details, travel preferences, and any media you choose to share.
               </p>
               <p className="mb-4">This information is used only to:</p>
               <ul className="list-disc pl-5 space-y-2">
@@ -68,15 +68,15 @@ const PrivacyPolicy: React.FC = () => {
               <p className="mt-4">
                 We do not sell, rent, or share WhatsApp communication for promotional or marketing purposes. Your information may be shared with drivers only when required to complete your booking or when legally required.
               </p>
-              <p className="mt-4 text-sm bg-lime-50 p-4 rounded-xl border border-lime-100">
-                Please note that WhatsApp is a third-party platform operated by Meta Platforms, Inc., and your communication is also subject to WhatsApp’s own Privacy Policy and Terms of Service. Go Bokaro Cabs is not responsible for WhatsApp’s data handling practices.
+              <p className="mt-4 text-sm bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                Please note that WhatsApp is a third-party platform operated by Meta Platforms, Inc., and your communication is also subject to WhatsApp’s own Privacy Policy and Terms of Service. Bokaro Cab Service is not responsible for WhatsApp’s data handling practices.
               </p>
             </div>
 
             <div>
               <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-4">Information Sharing</h2>
               <p>
-                Go Bokaro Cabs does not sell, trade, or rent your personal information to third parties. We may share information only:
+                Bokaro Cab Service does not sell, trade, or rent your personal information to third parties. We may share information only:
               </p>
               <ul className="list-disc pl-5 space-y-2 mt-2">
                 <li>With drivers to fulfill your booking</li>
@@ -101,7 +101,7 @@ const PrivacyPolicy: React.FC = () => {
                 Our website may use cookies to enhance user experience and analyze website performance. You may choose to disable cookies through your browser settings.
               </p>
               <p>
-                Our website may contain links to third-party websites or services. Go Bokaro Cabs is not responsible for the privacy practices or content of those external websites.
+                Our website may contain links to third-party websites or services. Bokaro Cab Service is not responsible for the privacy practices or content of those external websites.
               </p>
             </div>
 
@@ -115,10 +115,10 @@ const PrivacyPolicy: React.FC = () => {
             <div className="border-t border-gray-200 pt-8 mt-8">
               <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-4">Changes & Contact</h2>
               <p className="mb-4">
-                Go Bokaro Cabs reserves the right to update or modify this Privacy Policy at any time. Any changes will be posted on this page with an updated effective date.
+                Bokaro Cab Service reserves the right to update or modify this Privacy Policy at any time. Any changes will be posted on this page with an updated effective date.
               </p>
               <p className="font-bold text-gray-900">
-                If you have any questions or concerns regarding this Privacy Policy or how your information is handled, please contact Go Bokaro Cabs through our official website or contact numbers.
+                If you have any questions or concerns regarding this Privacy Policy or how your information is handled, please contact Bokaro Cab Service through our official website or contact numbers.
               </p>
             </div>
           </div>

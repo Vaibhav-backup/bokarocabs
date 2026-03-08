@@ -28,7 +28,7 @@ const TrustBadges: React.FC = () => {
             key={i} 
             className="flex items-center gap-5 group"
           >
-            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#A3E635] group-hover:text-black group-hover:rotate-12 transition-all duration-500 shadow-sm">
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-primary-yellow group-hover:text-primary-blue group-hover:rotate-12 transition-all duration-500 shadow-sm">
               <badge.icon size={24} />
             </div>
             <div>

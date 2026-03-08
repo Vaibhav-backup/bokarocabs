@@ -17,7 +17,7 @@ const REVIEWS = [
   {
     name: 'Ankit Raj',
     location: 'Chira Chas',
-    text: 'Go Bokaro Cabs is my go-to for corporate trips to Jamshedpur. Reliable, safe, and they provide proper bills for reimbursement.',
+    text: 'Bokaro Cab Service is my go-to for corporate trips to Jamshedpur. Reliable, safe, and they provide proper bills for reimbursement.',
     initials: 'AR'
   }
 ];
@@ -27,7 +27,7 @@ const Testimonials: React.FC = () => {
     <section className="py-24 bg-gray-50 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <span className="text-[#A3E635] font-black text-sm tracking-widest uppercase">Social Proof</span>
+          <span className="text-primary-yellow font-black text-sm tracking-widest uppercase">Social Proof</span>
           <h2 className="text-3xl md:text-5xl font-black text-gray-900 mt-2 tracking-tight">What Bokaro is Saying</h2>
         </div>
 
@@ -35,7 +35,7 @@ const Testimonials: React.FC = () => {
           {REVIEWS.map((r, i) => (
             <div key={i} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-black text-[#A3E635] flex items-center justify-center font-black text-sm">
+                <div className="w-12 h-12 rounded-2xl bg-primary-blue text-primary-yellow flex items-center justify-center font-black text-sm">
                   {r.initials}
                 </div>
                 <div>

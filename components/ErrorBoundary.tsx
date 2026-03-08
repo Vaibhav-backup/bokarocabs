@@ -48,7 +48,7 @@ class ErrorBoundary extends React.Component<Props, State> {
               </button>
               <a 
                 href="/" 
-                className="inline-flex items-center justify-center gap-3 bg-black text-[#A3E635] px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
+                className="inline-flex items-center justify-center gap-3 bg-primary-blue text-primary-yellow px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
               >
                 <i className="fas fa-home"></i>
                 Go to Home

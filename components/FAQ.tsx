@@ -31,7 +31,7 @@ const FAQ: React.FC = () => {
     <section className="py-24 bg-white px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <span className="text-[#A3E635] font-black text-sm tracking-widest uppercase">Got Questions?</span>
+          <span className="text-primary-yellow font-black text-sm tracking-widest uppercase">Got Questions?</span>
           <h2 className="text-3xl md:text-5xl font-black text-gray-900 mt-2 tracking-tight">Frequently Asked</h2>
         </div>
 
@@ -40,10 +40,10 @@ const FAQ: React.FC = () => {
             <div key={i} className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
               <button 
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className={`w-full flex items-center justify-between p-6 text-left transition-colors ${openIndex === i ? 'bg-black text-white' : 'bg-white text-gray-900 hover:bg-gray-50'}`}
+                className={`w-full flex items-center justify-between p-6 text-left transition-colors ${openIndex === i ? 'bg-primary-blue text-white' : 'bg-white text-gray-900 hover:bg-gray-50'}`}
               >
                 <span className="font-bold text-sm md:text-base">{faq.q}</span>
-                <i className={`fas fa-chevron-down transition-transform duration-300 ${openIndex === i ? 'rotate-180 text-[#A3E635]' : 'text-gray-300'}`}></i>
+                <i className={`fas fa-chevron-down transition-transform duration-300 ${openIndex === i ? 'rotate-180 text-primary-yellow' : 'text-gray-300'}`}></i>
               </button>
               <div className={`overflow-hidden transition-all duration-300 ${openIndex === i ? 'max-h-40' : 'max-h-0'}`}>
                 <div className="p-6 text-sm text-gray-500 bg-gray-50 leading-relaxed font-medium">

@@ -1,0 +1,892 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  LayoutDashboard, 
+  MapPin, 
+  Car as CarIcon, 
+  LogOut, 
+  Plus, 
+  Edit2, 
+  Trash2, 
+  Search, 
+  Phone, 
+  MessageSquare, 
+  CheckCircle, 
+  XCircle, 
+  Clock, 
+  AlertCircle,
+  RefreshCw,
+  MoreVertical,
+  ChevronRight,
+  ShieldCheck,
+  TrendingUp,
+  Users,
+  Calendar,
+  X,
+  Image as ImageIcon,
+  Map
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+
+import { Lead, RoutePrice, Car, TourPackage, Notification } from '../../types';
+
+import Modal from '../../components/ui/Modal';
+import LeadsDashboard from '../../components/admin/LeadsDashboard';
+import RoutesDashboard from '../../components/admin/RoutesDashboard';
+import CarsDashboard from '../../components/admin/CarsDashboard';
+import ToursDashboard from '../../components/admin/ToursDashboard';
+
+const Admin: React.FC = () => {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [routes, setRoutes] = useState<RoutePrice[]>([]);
+  const [cars, setCars] = useState<Car[]>([]);
+  const [tourPackages, setTourPackages] = useState<TourPackage[]>([]);
+  const [activeTab, setActiveTab] = useState<'leads' | 'routes' | 'cars' | 'tours'>('leads');
+  const [loading, setLoading] = useState(true);
+  const [password, setPassword] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [error, setError] = useState('');
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  // Form states
+  const [isRouteModalOpen, setIsRouteModalOpen] = useState(false);
+  const [isCarModalOpen, setIsCarModalOpen] = useState(false);
+  const [editingRoute, setEditingRoute] = useState<Partial<RoutePrice> | null>(null);
+  const [editingCar, setEditingCar] = useState<Partial<Car> | null>(null);
+  const [editingTour, setEditingTour] = useState<Partial<TourPackage> | null>(null);
+  const [isTourModalOpen, setIsTourModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
+
+  const [token, setToken] = useState<string | null>(null);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    // Set the mounted ref to false when the component unmounts
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    // We assume a cookie might exist on load. An API call will validate it.
+    // If the first API call fails with 401/403, the user will be logged out.
+    const checkAuth = async () => {
+      try {
+        // Make a lightweight request to check auth status
+        const res = await fetch('/api/leads/admin');
+        if (!isMounted.current) return;
+        if (res.ok) {
+          setToken('true'); // Dummy token to represent authenticated state
+          setIsAuthenticated(true);
+          fetchData();
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (err) {
+        if (isMounted.current) {
+          setIsAuthenticated(false);
+        }
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const addNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    const id = Math.random().toString(36).substr(2, 9);
+    setNotifications(prev => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 3000);
+  };
+
+  const fetchLeads = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/leads/admin');
+      if (res.ok) setLeads(await res.json());
+    } catch (err) { addNotification('Failed to fetch leads', 'error'); }
+  };
+
+  const fetchRoutes = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/routes/admin');
+      if (res.ok) setRoutes(await res.json());
+    } catch (err) { addNotification('Failed to fetch routes', 'error'); }
+  };
+
+  const fetchCars = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/cars/admin');
+      if (res.ok) setCars(await res.json());
+    } catch (err) { addNotification('Failed to fetch cars', 'error'); }
+  };
+
+  const fetchTours = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/tour-packages/admin');
+      if (res.ok) setTourPackages(await res.json());
+    } catch (err) { addNotification('Failed to fetch tours', 'error'); }
+  };
+
+  const fetchData = async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const [leadsRes, routesRes, carsRes, toursRes] = await Promise.all([
+        fetch('/api/leads/admin'),
+        fetch('/api/routes/admin'),
+        fetch('/api/cars/admin'),
+        fetch('/api/tour-packages/admin')
+      ]);
+
+      if (!isMounted.current) return;
+
+      if (leadsRes.status === 403 || leadsRes.status === 401) {
+        handleLogout();
+        return;
+      }
+
+      if (leadsRes.ok) {
+        const data = await leadsRes.json();
+        setLeads(data);
+      }
+      if (routesRes.ok) setRoutes(await routesRes.json());
+      if (carsRes.ok) setCars(await carsRes.json());
+      if (toursRes.ok) setTourPackages(await toursRes.json());
+    } catch (err) {
+      if (isMounted.current) {
+        addNotification('Failed to fetch data', 'error');
+      }
+    } finally {
+      if (isMounted.current) {
+        setLoading(false);
+      }
+    }
+  };
+
+  const updateLeadStatus = async (id: string, status: string) => {
+    try {
+      const response = await fetch(`/api/leads/admin/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+      if (response.ok) {
+        addNotification('Status updated', 'success');
+        fetchLeads();
+      }
+    } catch (err) {
+      addNotification('Failed to update status', 'error');
+    }
+  };
+
+  const handleSaveRoute = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingRoute) return;
+    try {
+      const url = editingRoute.id ? `/api/routes/admin/${editingRoute.id}` : '/api/routes/admin';
+      const method = editingRoute.id ? 'PUT' : 'POST';
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(editingRoute)
+      });
+      if (response.ok) {
+        addNotification(editingRoute.id ? 'Route updated' : 'Route added', 'success');
+        setIsRouteModalOpen(false);
+        setEditingRoute(null);
+        fetchRoutes();
+      }
+    } catch (err) {
+      addNotification('Failed to save route', 'error');
+    }
+  };
+
+  const handleDeleteRoute = (id: string) => {
+    setConfirmAction(() => async () => {
+      try {
+        const response = await fetch(`/api/routes/admin/${id}`, {
+          method: 'DELETE'
+        });
+        if (response.ok) {
+          addNotification('Route deleted', 'success');
+          fetchRoutes();
+        } else {
+          const err = await response.json();
+          addNotification(err.error || 'Failed to delete route', 'error');
+        }
+      } catch (err) {
+        addNotification('Network error during deletion', 'error');
+      }
+      setIsConfirmModalOpen(false);
+    });
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleDeleteRouteWithConfirmation = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this route?')) return;
+    try {
+      const response = await fetch(`/api/routes/admin/${id}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        addNotification('Route deleted', 'success');
+        fetchRoutes();
+      } else {
+        const err = await response.json();
+        addNotification(err.error || 'Failed to delete route', 'error');
+      }
+    } catch (err) {
+      addNotification('Network error during deletion', 'error');
+    }
+  };
+
+  const handleSaveCar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCar) return;
+    try {
+      const url = editingCar.id ? `/api/cars/admin/${editingCar.id}` : '/api/cars/admin';
+      const method = editingCar.id ? 'PUT' : 'POST';
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(editingCar)
+      });
+      if (response.ok) {
+        addNotification(editingCar.id ? 'Car updated' : 'Car added', 'success');
+        setIsCarModalOpen(false);
+        setEditingCar(null);
+        fetchCars();
+      }
+    } catch (err) {
+      addNotification('Failed to save car', 'error');
+    }
+  };
+
+  const handleDeleteCar = (id: string) => {
+    setConfirmAction(() => async () => {
+      try {
+        const response = await fetch(`/api/cars/admin/${id}`, {
+          method: 'DELETE'
+        });
+        if (response.ok) {
+          addNotification('Car deleted', 'success');
+          fetchCars();
+        } else {
+          const err = await response.json();
+          addNotification(err.error || 'Failed to delete car', 'error');
+        }
+      } catch (err) {
+        addNotification('Network error during deletion', 'error');
+      }
+      setIsConfirmModalOpen(false);
+    });
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleDeleteCarWithConfirmation = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this car?')) return;
+    try {
+      const response = await fetch(`/api/cars/admin/${id}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        addNotification('Car deleted', 'success');
+        fetchCars();
+      } else {
+        const err = await response.json();
+        addNotification(err.error || 'Failed to delete car', 'error');
+      }
+    } catch (err) {
+      addNotification('Network error during deletion', 'error');
+    }
+  };
+
+  const handleSaveTour = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTour) return;
+    try {
+      const url = editingTour.id ? `/api/tour-packages/admin/${editingTour.id}` : '/api/tour-packages/admin';
+      const method = editingTour.id ? 'PUT' : 'POST';
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(editingTour)
+      });
+      if (response.ok) {
+        addNotification(editingTour.id ? 'Tour updated' : 'Tour added', 'success');
+        setIsTourModalOpen(false);
+        setEditingTour(null);
+        fetchTours();
+      }
+    } catch (err) {
+      addNotification('Failed to save tour', 'error');
+    }
+  };
+
+  const handleDeleteTour = (id: string) => {
+    setConfirmAction(() => async () => {
+      try {
+        const response = await fetch(`/api/tour-packages/admin/${id}`, {
+          method: 'DELETE'
+        });
+        if (response.ok) {
+          addNotification('Tour deleted', 'success');
+          fetchTours();
+        }
+      } catch (err) {
+        addNotification('Failed to delete tour', 'error');
+      }
+      setIsConfirmModalOpen(false);
+    });
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleDeleteTourWithConfirmation = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this tour package?')) return;
+    try {
+      const response = await fetch(`/api/tour-packages/admin/${id}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        addNotification('Tour deleted', 'success');
+        fetchTours();
+      }
+    } catch (err) {
+      addNotification('Failed to delete tour', 'error');
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+
+        body: formData
+      });
+
+      if (response.ok) {
+        const { url } = await response.json();
+        setEditingTour(prev => ({ ...prev, image_url: url }));
+        addNotification('Image uploaded successfully', 'success');
+      } else {
+        addNotification('Upload failed', 'error');
+      }
+    } catch (err) {
+      addNotification('Upload error', 'error');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setToken('true');
+        setIsAuthenticated(true);
+        addNotification('Welcome back, Admin', 'success');
+        fetchData();
+      } else {
+        setError(data.error || 'Invalid password');
+      }
+    } catch (err) {
+      setError('Connection failed');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      setToken(null);
+      setIsAuthenticated(false);
+      setPassword('');
+      addNotification('Logged out successfully', 'success');
+    } catch (err) {
+      addNotification('Logout failed', 'error');
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white w-full max-w-md rounded-[3rem] p-10 shadow-2xl"
+        >
+          <div className="text-center mb-10">
+            <div className="w-20 h-20 bg-black rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+              <ShieldCheck className="text-[#A3E635]" size={32} />
+            </div>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight">Admin Portal</h1>
+            <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mt-2">Go Bokaro Cabs Management</p>
+          </div>
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Access Key</label>
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-5 font-bold text-gray-900 focus:border-black focus:bg-white outline-none transition-all text-center tracking-widest"
+              />
+            </div>
+            {error && (
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-red-500 text-xs font-black text-center uppercase tracking-wider"
+              >
+                {error}
+              </motion.p>
+            )}
+            <button 
+              type="submit"
+              className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
+            >
+              Unlock Dashboard
+            </button>
+          </form>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#F8F9FA] flex flex-col md:flex-row">
+      
+      {/* Notifications */}
+      <div className="fixed top-6 right-6 z-[200] space-y-3 pointer-events-none">
+        <AnimatePresence>
+          {notifications.map(n => (
+            <motion.div
+              key={n.id}
+              initial={{ opacity: 0, x: 20, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 20, scale: 0.9 }}
+              className={`pointer-events-auto px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border ${
+                n.type === 'success' ? 'bg-white border-lime-100 text-lime-600' :
+                n.type === 'error' ? 'bg-white border-red-100 text-red-600' :
+                'bg-white border-blue-100 text-blue-600'
+              }`}
+            >
+              {n.type === 'success' ? <CheckCircle size={18} /> : 
+               n.type === 'error' ? <AlertCircle size={18} /> : <RefreshCw size={18} />}
+              <span className="text-sm font-black uppercase tracking-wider">{n.message}</span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* Sidebar - Desktop */}
+      <aside className="hidden md:flex w-72 bg-black text-white flex-col p-8 sticky top-0 h-screen">
+        <div className="flex items-center gap-4 mb-12">
+          <div className="w-12 h-12 bg-[#A3E635] rounded-2xl flex items-center justify-center text-black font-black text-xl">GB</div>
+          <div>
+            <h1 className="text-lg font-black tracking-tighter">ADMIN</h1>
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Control Panel</p>
+          </div>
+        </div>
+
+        <nav className="space-y-2 flex-grow">
+          {[
+            { id: 'leads', label: 'Inquiries', icon: LayoutDashboard },
+            { id: 'routes', label: 'Pricing', icon: MapPin },
+            { id: 'cars', label: 'Fleet', icon: CarIcon },
+            { id: 'tours', label: 'Tours', icon: Map },
+          ].map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id as any)}
+              className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all ${
+                activeTab === item.id 
+                ? 'bg-[#A3E635] text-black shadow-[0_10px_20px_-5px_rgba(163,230,53,0.3)]' 
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <item.icon size={18} />
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="pt-8 border-t border-white/10">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-xs text-red-400 hover:bg-red-400/10 transition-all"
+          >
+            <LogOut size={18} />
+            Logout
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile Header */}
+      <header className="md:hidden bg-black text-white p-6 sticky top-0 z-50 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-[#A3E635] rounded-xl flex items-center justify-center text-black font-black">GB</div>
+          <h1 className="text-lg font-black tracking-tight uppercase">{activeTab}</h1>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={fetchData} className="p-2 text-gray-400 hover:text-white"><RefreshCw size={20} /></button>
+          <button onClick={handleLogout} className="p-2 text-red-400"><LogOut size={20} /></button>
+        </div>
+      </header>
+
+      {/* Mobile Nav */}
+      <nav className="md:hidden fixed bottom-6 left-6 right-6 z-50 bg-black/80 backdrop-blur-xl border border-white/10 rounded-3xl p-2 flex gap-1 shadow-2xl">
+        {[
+          { id: 'leads', icon: LayoutDashboard },
+          { id: 'routes', icon: MapPin },
+          { id: 'cars', icon: CarIcon },
+          { id: 'tours', icon: Map },
+        ].map(item => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id as any)}
+            className={`flex-1 py-4 rounded-2xl flex items-center justify-center transition-all ${
+              activeTab === item.id ? 'bg-[#A3E635] text-black' : 'text-gray-500'
+            }`}
+          >
+            <item.icon size={20} />
+          </button>
+        ))}
+      </nav>
+
+      {/* Main Content */}
+      <main className="flex-grow p-6 md:p-12 pb-32 md:pb-12">
+        
+        {/* Tab Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight capitalize">
+              {activeTab === 'leads' ? 'Booking Inquiries' : 
+               activeTab === 'routes' ? 'Route Pricing' : 
+               activeTab === 'cars' ? 'Fleet Management' : 'Tour Packages'}
+            </h2>
+            <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mt-1">
+              {activeTab === 'leads' ? 'Manage customer requests and status' : 
+               activeTab === 'routes' ? 'Update intercity travel fares' : 
+               activeTab === 'cars' ? 'Manage available vehicles' : 'Create and manage tour packages'}
+            </p>
+          </div>
+          
+          {(activeTab === 'routes' || activeTab === 'cars' || activeTab === 'tours') && (
+            <button 
+              onClick={() => {
+                if (activeTab === 'routes') {
+                  setEditingRoute({});
+                  setIsRouteModalOpen(true);
+                } else if (activeTab === 'cars') {
+                  setEditingCar({});
+                  setIsCarModalOpen(true);
+                } else if (activeTab === 'tours') {
+                  setEditingTour({ title: '', description: '', price: 0, duration: '' });
+                  setIsTourModalOpen(true);
+                }
+              }}
+              className="bg-black text-[#A3E635] px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
+            >
+              <Plus size={18} />
+              Add New {activeTab === 'routes' ? 'Route' : activeTab === 'cars' ? 'Car' : 'Package'}
+            </button>
+          )}
+        </div>
+
+        {/* Content Area */}
+        <div className="space-y-8">
+          
+          {activeTab === 'leads' && <LeadsDashboard leads={leads} updateLeadStatus={updateLeadStatus} />}
+
+          {activeTab === 'routes' && <RoutesDashboard routes={routes} setEditingRoute={setEditingRoute} setIsRouteModalOpen={setIsRouteModalOpen} handleDeleteRoute={handleDeleteRoute} />}
+
+          {activeTab === 'cars' && <CarsDashboard cars={cars} setEditingCar={setEditingCar} setIsCarModalOpen={setIsCarModalOpen} handleDeleteCar={handleDeleteCar} />}
+
+          {activeTab === 'tours' && <ToursDashboard tourPackages={tourPackages} setEditingTour={setEditingTour} setIsTourModalOpen={setIsTourModalOpen} handleDeleteTour={handleDeleteTour} />}
+        </div>
+      </main>
+
+      {/* --- Modals --- */}
+
+      {/* Route Modal */}
+      <Modal 
+        isOpen={isRouteModalOpen} 
+        onClose={() => setIsRouteModalOpen(false)} 
+        title={editingRoute?.id ? 'Edit Route' : 'New Route'}
+      >
+        <form onSubmit={handleSaveRoute} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Destination</label>
+              <input 
+                required
+                type="text" 
+                value={editingRoute?.destination || ''}
+                onChange={(e) => setEditingRoute(prev => ({ ...prev, destination: e.target.value }))}
+                placeholder="e.g. Ranchi"
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Travel Time</label>
+              <input 
+                required
+                type="text" 
+                value={editingRoute?.time || ''}
+                onChange={(e) => setEditingRoute(prev => ({ ...prev, time: e.target.value }))}
+                placeholder="e.g. 3h 15m"
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Distance</label>
+            <input 
+              required
+              type="text" 
+              value={editingRoute?.distance || ''}
+              onChange={(e) => setEditingRoute(prev => ({ ...prev, distance: e.target.value }))}
+              placeholder="e.g. 112 km"
+              className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Sedan Fare (₹)</label>
+              <input 
+                required
+                type="number" 
+                value={editingRoute?.sedan || ''}
+                onChange={(e) => setEditingRoute(prev => ({ ...prev, sedan: Number(e.target.value) }))}
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">SUV Fare (₹)</label>
+              <input 
+                required
+                type="number" 
+                value={editingRoute?.ertiga || ''}
+                onChange={(e) => setEditingRoute(prev => ({ ...prev, ertiga: Number(e.target.value) }))}
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+              />
+            </div>
+          </div>
+          <button 
+            type="submit" 
+            className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
+          >
+            {editingRoute?.id ? 'Update Route' : 'Create Route'}
+          </button>
+        </form>
+      </Modal>
+
+      {/* Car Modal */}
+      <Modal 
+        isOpen={isCarModalOpen} 
+        onClose={() => setIsCarModalOpen(false)} 
+        title={editingCar?.id ? 'Edit Vehicle' : 'New Vehicle'}
+      >
+        <form onSubmit={handleSaveCar} className="space-y-6">
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Vehicle Class</label>
+            <input 
+              required
+              type="text" 
+              value={editingCar?.name || ''}
+              onChange={(e) => setEditingCar(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="e.g. Premium Sedan"
+              className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Models</label>
+            <input 
+              required
+              type="text" 
+              value={editingCar?.models || ''}
+              onChange={(e) => setEditingCar(prev => ({ ...prev, models: e.target.value }))}
+              placeholder="e.g. Honda City / Verna"
+              className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Capacity</label>
+              <input 
+                required
+                type="text" 
+                value={editingCar?.capacity || ''}
+                onChange={(e) => setEditingCar(prev => ({ ...prev, capacity: e.target.value }))}
+                placeholder="e.g. 4+1"
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Type</label>
+              <select 
+                value={editingCar?.type || 'Sedan'}
+                onChange={(e) => setEditingCar(prev => ({ ...prev, type: e.target.value }))}
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black appearance-none cursor-pointer"
+              >
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Luxury">Luxury</option>
+              </select>
+            </div>
+          </div>
+          <button 
+            type="submit" 
+            className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all"
+          >
+            {editingCar?.id ? 'Update Vehicle' : 'Add to Fleet'}
+          </button>
+        </form>
+      </Modal>
+
+      {/* Tour Modal */}
+      <Modal 
+        isOpen={isTourModalOpen} 
+        onClose={() => setIsTourModalOpen(false)} 
+        title={editingTour?.id ? 'Edit Tour Package' : 'New Tour Package'}
+      >
+        <form onSubmit={handleSaveTour} className="space-y-6">
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Tour Title</label>
+            <input 
+              required
+              type="text" 
+              value={editingTour?.title || ''}
+              onChange={(e) => setEditingTour(prev => ({ ...prev, title: e.target.value }))}
+              placeholder="e.g. Weekend Getaway to Parasnath"
+              className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Price (₹)</label>
+              <input 
+                required
+                type="number" 
+                value={editingTour?.price || ''}
+                onChange={(e) => setEditingTour(prev => ({ ...prev, price: parseInt(e.target.value) }))}
+                placeholder="2500"
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Duration</label>
+              <input 
+                required
+                type="text" 
+                value={editingTour?.duration || ''}
+                onChange={(e) => setEditingTour(prev => ({ ...prev, duration: e.target.value }))}
+                placeholder="e.g. 2 Days / 1 Night"
+                className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description</label>
+            <textarea 
+              required
+              rows={3}
+              value={editingTour?.description || ''}
+              onChange={(e) => setEditingTour(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Describe the tour package details..."
+              className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 font-bold text-gray-900 outline-none focus:border-black transition-all resize-none"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Package Image</label>
+            <div className="relative group">
+              <div className={`w-full h-40 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden transition-all ${isUploading ? 'opacity-50' : 'hover:border-[#A3E635]'}`}>
+                {editingTour?.image_url ? (
+                  <img src={editingTour.image_url} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <>
+                    <ImageIcon className="text-gray-300 mb-2" size={32} />
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Click to upload</p>
+                  </>
+                )}
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  disabled={isUploading}
+                />
+              </div>
+              {isUploading && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <RefreshCw className="animate-spin text-black" size={24} />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <button 
+            type="submit"
+            disabled={isUploading}
+            className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+          >
+            {isUploading ? 'Uploading...' : (editingTour?.id ? 'Update Package' : 'Create Package')}
+          </button>
+        </form>
+      </Modal>
+
+      {/* Confirmation Modal */}
+      <Modal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} title="Confirm Action">
+        <div className="space-y-6">
+          <p className="text-gray-500 font-medium">Are you sure you want to proceed with this action? This cannot be undone.</p>
+          <div className="flex justify-end gap-4">
+            <button 
+              onClick={() => setIsConfirmModalOpen(false)} 
+              className="px-6 py-3 bg-gray-100 text-gray-900 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-gray-200 transition-all"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={() => confirmAction && confirmAction()} 
+              className="px-6 py-3 bg-red-500 text-white rounded-xl font-black uppercase tracking-widest text-xs hover:bg-red-600 transition-all"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+export default Admin;

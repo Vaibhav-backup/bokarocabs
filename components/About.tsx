@@ -4,11 +4,11 @@ import { INSTAGRAM_LINK, FACEBOOK_LINK } from '../constants';
 
 const About: React.FC = () => {
   return (
-    <section id="about" className="py-20 md:py-32 bg-black text-white relative overflow-hidden">
+    <section id="about" className="py-20 md:py-32 bg-primary-blue text-white relative overflow-hidden">
       {/* Background pattern/image */}
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-         <div className="absolute right-0 top-0 w-96 h-96 bg-[#A3E635] rounded-full blur-[150px] transform translate-x-1/2 -translate-y-1/2"></div>
-         <div className="absolute left-0 bottom-0 w-64 h-64 bg-[#A3E635] rounded-full blur-[100px] transform -translate-x-1/2 translate-y-1/2"></div>
+         <div className="absolute right-0 top-0 w-96 h-96 bg-primary-yellow rounded-full blur-[150px] transform translate-x-1/2 -translate-y-1/2"></div>
+         <div className="absolute left-0 bottom-0 w-64 h-64 bg-primary-yellow rounded-full blur-[100px] transform -translate-x-1/2 translate-y-1/2"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
@@ -16,16 +16,16 @@ const About: React.FC = () => {
           
           <div className="space-y-8 animate-fade-in">
             <div>
-              <span className="text-[#A3E635] font-black tracking-widest uppercase text-xs md:text-sm mb-2 block">Our Story</span>
+              <span className="text-primary-yellow font-black tracking-widest uppercase text-xs md:text-sm mb-2 block">Our Story</span>
               <h2 className="text-4xl md:text-6xl font-black leading-tight">
                 Born in <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A3E635] to-lime-600">The Steel City.</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-yellow to-yellow-600">The Steel City.</span>
               </h2>
             </div>
             
             <div className="space-y-6 text-gray-400 text-lg leading-relaxed font-light">
               <p>
-                Go Bokaro Cabs koi boardroom mein nahi shuru hui thi. Ye shuru hui ek simple soch se: 
+                Bokaro Cab Service koi boardroom mein nahi shuru hui thi. Ye shuru hui ek simple soch se: 
                 Bokaro ke logon ko travel karne ka ek behtar tareeka milna chahiye—safer, cleaner, aur faceless apps se zyada personal.
               </p>
               <p>
@@ -66,7 +66,7 @@ const About: React.FC = () => {
                 
                 <div className="absolute bottom-8 left-8 right-8">
                   <div className="flex items-center gap-4 mb-4">
-                     <div className="w-12 h-12 bg-[#A3E635] rounded-full flex items-center justify-center text-black text-xl font-bold">
+                     <div className="w-12 h-12 bg-primary-yellow rounded-full flex items-center justify-center text-primary-blue text-xl font-bold">
                        <i className="fas fa-quote-left"></i>
                      </div>
                   </div>

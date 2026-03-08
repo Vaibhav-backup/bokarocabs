@@ -6,7 +6,7 @@ const NotFound: React.FC = () => {
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4">
       <div className="text-center">
-        <div className="w-24 h-24 bg-lime-100 rounded-3xl flex items-center justify-center text-[#A3E635] mx-auto mb-8 animate-bounce">
+        <div className="w-24 h-24 bg-yellow-100 rounded-3xl flex items-center justify-center text-primary-yellow mx-auto mb-8 animate-bounce">
           <i className="fas fa-exclamation-triangle text-4xl"></i>
         </div>
         <h1 className="text-6xl md:text-8xl font-black text-gray-900 mb-4 tracking-tighter">404</h1>
@@ -16,7 +16,7 @@ const NotFound: React.FC = () => {
         </p>
         <Link 
           to="/" 
-          className="inline-flex items-center gap-3 bg-black text-[#A3E635] px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
+          className="inline-flex items-center gap-3 bg-primary-blue text-primary-yellow px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
         >
           <i className="fas fa-home"></i>
           Back to Home

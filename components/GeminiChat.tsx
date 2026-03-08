@@ -6,7 +6,7 @@ import { ROUTES_PRICING, CONTACT_PHONE, WHATSAPP_LINK } from '../constants';
 const GeminiChat: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([
-    { role: 'ai', text: 'Namaste! I am your Go Bokaro AI Assistant. Planning a trip from the Steel City today?' }
+    { role: 'ai', text: 'Namaste! I am your Bokaro Cab Service AI Assistant. Planning a trip from the Steel City today?' }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -37,7 +37,7 @@ const GeminiChat: React.FC = () => {
         contents: userMsg,
         config: {
           systemInstruction: `
-            You are "Steel Buddy", the official AI travel concierge for "Go Bokaro Cabs", the leading intercity service in Bokaro Steel City, Jharkhand.
+            You are "Steel Buddy", the official AI travel concierge for "Bokaro Cab Service", the leading intercity service in Bokaro Steel City, Jharkhand.
             Your persona: Helpful, local, reliable, and slightly traditional yet tech-savvy. 
             Greeting: Use "Namaste" or "Ram Ram" appropriately. Use "Ji" to show respect.
             
@@ -58,11 +58,11 @@ const GeminiChat: React.FC = () => {
         }
       });
 
-      const aiText = response.text || "Namaste! I'm having a small technical glitch. Please call us directly at 8271212333 for immediate assistance.";
+      const aiText = response.text || `Namaste! I'm having a small technical glitch. Please call us directly at ${CONTACT_PHONE} for immediate assistance.`;
       setMessages(prev => [...prev, { role: 'ai', text: aiText }]);
     } catch (error) {
       console.error("Gemini API Error:", error);
-      setMessages(prev => [...prev, { role: 'ai', text: "Namaste! My connection is a bit weak right now. You can reach our 24/7 hotline at 8271212333 for bookings." }]);
+      setMessages(prev => [...prev, { role: 'ai', text: `Namaste! My connection is a bit weak right now. You can reach our 24/7 hotline at ${CONTACT_PHONE} for bookings.` }]);
     } finally {
       setIsTyping(false);
     }
@@ -74,14 +74,14 @@ const GeminiChat: React.FC = () => {
       <div className="relative">
         {!isOpen && (
           <span className="absolute -top-1 -right-1 flex h-4 w-4 z-10">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-4 w-4 bg-lime-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-yellow opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-4 w-4 bg-primary-yellow"></span>
           </span>
         )}
         <button 
           onClick={() => setIsOpen(!isOpen)}
           className={`w-14 h-14 md:w-16 md:h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 border-2 transform ${
-            isOpen ? 'bg-white text-black border-gray-100 rotate-0' : 'bg-black text-[#A3E635] border-[#A3E635] hover:scale-110'
+            isOpen ? 'bg-white text-primary-blue border-gray-100 rotate-0' : 'bg-primary-blue text-primary-yellow border-primary-yellow hover:scale-110'
           }`}
           aria-label="Chat with Steel Buddy"
         >
@@ -96,22 +96,22 @@ const GeminiChat: React.FC = () => {
         }`}
       >
         {/* Header - Premium Dark */}
-        <div className="bg-black p-5 text-white flex items-center justify-between">
+        <div className="bg-primary-blue p-5 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-[#A3E635] flex items-center justify-center relative shadow-lg">
-              <i className="fas fa-id-badge text-black text-xl"></i>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-black rounded-full"></div>
+            <div className="w-11 h-11 rounded-xl bg-primary-yellow flex items-center justify-center relative shadow-lg">
+              <i className="fas fa-id-badge text-primary-blue text-xl"></i>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-primary-blue rounded-full"></div>
             </div>
             <div>
               <h4 className="font-extrabold text-sm tracking-tight leading-none mb-1">Steel Buddy</h4>
               <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-lime-500 rounded-full animate-pulse"></span>
-                <p className="text-[9px] text-lime-400 font-black uppercase tracking-widest">Online & Ready</p>
+                <span className="w-1.5 h-1.5 bg-primary-yellow rounded-full animate-pulse"></span>
+                <p className="text-[9px] text-primary-yellow font-black uppercase tracking-widest">Online & Ready</p>
               </div>
             </div>
           </div>
           <div className="flex gap-2">
-             <a href={`tel:${CONTACT_PHONE}`} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#A3E635] hover:text-black transition-all">
+             <a href={`tel:${CONTACT_PHONE}`} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary-yellow hover:text-primary-blue transition-all">
               <i className="fas fa-phone text-xs"></i>
             </a>
             <button onClick={() => setIsOpen(false)} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
@@ -130,7 +130,7 @@ const GeminiChat: React.FC = () => {
             <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
               <div className={`max-w-[85%] px-5 py-3.5 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
                 m.role === 'user' 
-                ? 'bg-black text-white rounded-tr-none font-medium' 
+                ? 'bg-primary-blue text-white rounded-tr-none font-medium' 
                 : 'bg-white border border-gray-100 text-gray-800 rounded-tl-none font-medium'
               }`}>
                 {m.text}
@@ -140,9 +140,9 @@ const GeminiChat: React.FC = () => {
           {isTyping && (
             <div className="flex justify-start animate-fade-in">
               <div className="bg-white border border-gray-100 p-4 rounded-2xl rounded-tl-none shadow-sm flex gap-1.5">
-                <div className="w-1.5 h-1.5 bg-lime-500 rounded-full animate-bounce [animation-duration:0.8s]"></div>
-                <div className="w-1.5 h-1.5 bg-lime-500 rounded-full animate-bounce [animation-duration:0.8s] [animation-delay:0.2s]"></div>
-                <div className="w-1.5 h-1.5 bg-lime-500 rounded-full animate-bounce [animation-duration:0.8s] [animation-delay:0.4s]"></div>
+                <div className="w-1.5 h-1.5 bg-primary-yellow rounded-full animate-bounce [animation-duration:0.8s]"></div>
+                <div className="w-1.5 h-1.5 bg-primary-yellow rounded-full animate-bounce [animation-duration:0.8s] [animation-delay:0.2s]"></div>
+                <div className="w-1.5 h-1.5 bg-primary-yellow rounded-full animate-bounce [animation-duration:0.8s] [animation-delay:0.4s]"></div>
               </div>
             </div>
           )}
@@ -151,7 +151,7 @@ const GeminiChat: React.FC = () => {
         {/* Input Interface */}
         <div className="p-5 bg-white border-t border-gray-100">
           <div className="flex gap-2 items-center">
-            <div className="flex-grow flex items-center bg-gray-100 rounded-2xl px-4 focus-within:ring-2 focus-within:ring-[#A3E635] focus-within:bg-white transition-all shadow-inner">
+            <div className="flex-grow flex items-center bg-gray-100 rounded-2xl px-4 focus-within:ring-2 focus-within:ring-primary-blue focus-within:bg-white transition-all shadow-inner">
               <input 
                 type="text" 
                 value={input}
@@ -164,16 +164,16 @@ const GeminiChat: React.FC = () => {
             <button 
               onClick={handleSend}
               disabled={isTyping || !input.trim()}
-              className="bg-black text-[#A3E635] w-12 h-12 rounded-2xl flex items-center justify-center hover:scale-105 active:scale-95 disabled:opacity-30 transition-all shadow-lg flex-shrink-0"
+              className="bg-primary-blue text-primary-yellow w-12 h-12 rounded-2xl flex items-center justify-center hover:scale-105 active:scale-95 disabled:opacity-30 transition-all shadow-lg flex-shrink-0"
             >
               <i className="fas fa-paper-plane text-sm"></i>
             </button>
           </div>
           
           <div className="flex justify-center items-center gap-4 mt-4 text-[9px] text-gray-400 font-bold uppercase tracking-[0.15em]">
-             <span className="flex items-center gap-1"><i className="fas fa-shield-halved text-lime-600"></i> Encrypted</span>
+             <span className="flex items-center gap-1"><i className="fas fa-shield-halved text-primary-blue"></i> Encrypted</span>
              <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-             <span className="flex items-center gap-1"><i className="fas fa-bolt text-lime-600"></i> AI Powered</span>
+             <span className="flex items-center gap-1"><i className="fas fa-bolt text-primary-blue"></i> AI Powered</span>
           </div>
         </div>
       </div>

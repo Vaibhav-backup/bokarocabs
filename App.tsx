@@ -10,7 +10,7 @@ import TermsConditions from './components/TermsConditions';
 import Home from './components/Home';
 import NotFound from './components/NotFound';
 import ErrorBoundary from './components/ErrorBoundary';
-import Admin from './Admin';
+import Admin from './src/pages/Admin';
 import TourPackages from './TourPackages';
 import TourPackageDetails from './TourPackageDetails';
 

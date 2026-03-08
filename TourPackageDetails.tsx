@@ -33,7 +33,7 @@ const TourPackageDetails: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-[#A3E635] border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-primary-yellow border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -106,14 +106,14 @@ const TourPackageDetails: React.FC = () => {
                   href={`${WHATSAPP_LINK}?text=I'm interested in the ${pkg.title} tour package.`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-5 bg-black text-[#A3E635] rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 shadow-xl hover:scale-105 transition-all"
+                  className="w-full py-5 bg-primary-blue text-primary-yellow rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 shadow-xl hover:scale-105 transition-all"
                 >
                   Book on WhatsApp
                   <ArrowRight size={20} />
                 </a>
                 <a 
                   href={`tel:${CONTACT_PHONE}`}
-                  className="w-full mt-4 py-5 bg-white border-2 border-gray-100 text-black rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 hover:border-black transition-all"
+                  className="w-full mt-4 py-5 bg-white border-2 border-gray-100 text-black rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 hover:border-primary-blue transition-all"
                 >
                   <Phone size={20} />
                   Call to Book

@@ -66,17 +66,17 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
           >
             <motion.div 
               whileHover={{ rotate: 12 }}
-              className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-lg border-2 border-[#A3E635]"
+              className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-lg border-2 border-primary-yellow"
             >
               <img 
-                src="https://res.cloudinary.com/dn6sk8mqh/image/upload/v1771266719/Screenshot_2026-02-16_235537_ru81eo.png" 
-                alt="Go Bokaro Cabs Logo" 
-                className="w-full h-full object-cover scale-110"
+                src="https://res.cloudinary.com/dn6sk8mqh/image/upload/v1772965540/Bokaro_cab_services_wordmark_logo_a73cd6f96f_w3jpab.jpg" 
+                alt="Bokaro Cab Service Logo" 
+                className="w-full h-full object-contain"
               />
             </motion.div>
             <div>
-              <h1 className="text-base md:text-xl font-black tracking-tighter leading-none text-black">GO BOKARO</h1>
-              <p className="text-[8px] md:text-[10px] tracking-[0.2em] text-[#A3E635] font-bold uppercase">Premium Cabs</p>
+              <h1 className="text-base md:text-xl font-black tracking-tighter leading-none text-primary-blue">BOKARO CAB SERVICE</h1>
+              <p className="text-[8px] md:text-[10px] tracking-[0.2em] text-primary-yellow font-bold uppercase">Premium Cabs</p>
             </div>
           </Link>
 
@@ -86,14 +86,14 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
               <button
                 key={link.id}
                 onClick={(e) => handleNavClick(e as any, link.id)}
-                className="text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-[#A3E635] text-gray-500"
+                className="text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-primary-yellow text-gray-500"
               >
                 {link.name}
               </button>
             ))}
             <Link 
               to="/tours" 
-              className="text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-[#A3E635] text-gray-500"
+              className="text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-primary-yellow text-gray-500"
             >
               Tour Packages
             </Link>
@@ -103,7 +103,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
           <div className="flex items-center gap-3">
             <a 
               href={`tel:${CONTACT_PHONE}`}
-              className="hidden lg:flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all bg-gray-100 text-black hover:bg-black hover:text-white"
+              className="hidden lg:flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all bg-gray-100 text-primary-blue hover:bg-primary-blue hover:text-white"
             >
               <Phone size={14} />
               <span>{CONTACT_PHONE}</span>
@@ -114,7 +114,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
               href={WHATSAPP_LINK}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-[#A3E635] text-black px-6 py-2.5 rounded-full font-black text-[10px] md:text-xs tracking-widest uppercase shadow-[0_8px_20px_-4px_rgba(163,230,53,0.5)] transition-all"
+              className="bg-primary-yellow text-primary-blue px-6 py-2.5 rounded-full font-black text-[10px] md:text-xs tracking-widest uppercase shadow-[0_8px_20px_-4px_rgba(245,166,35,0.5)] transition-all"
             >
               BOOK NOW
             </motion.a>
@@ -122,7 +122,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
             {/* Mobile Menu Toggle */}
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-xl transition-colors text-black hover:bg-gray-100"
+              className="md:hidden p-2 rounded-xl transition-colors text-primary-blue hover:bg-gray-100"
               aria-label="Toggle Menu"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -144,7 +144,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
             <div className="flex flex-col gap-8">
               <button 
                 onClick={() => setIsMenuOpen(false)}
-                className="self-start flex items-center gap-2 text-gray-400 font-black text-[10px] uppercase tracking-[0.3em] mb-4 hover:text-black transition-colors"
+                className="self-start flex items-center gap-2 text-gray-400 font-black text-[10px] uppercase tracking-[0.3em] mb-4 hover:text-primary-blue transition-colors"
               >
                 <ChevronRight size={16} className="rotate-180" />
                 Back
@@ -166,7 +166,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
                   className="text-4xl font-black text-gray-900 flex justify-between items-center group"
                 >
                   {name}
-                  <ChevronRight size={32} className="text-gray-200 group-hover:text-[#A3E635] transition-colors" />
+                  <ChevronRight size={32} className="text-gray-200 group-hover:text-primary-yellow transition-colors" />
                 </motion.button>
               ))}
             </div>
@@ -178,16 +178,16 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
                   <Phone className="text-gray-400" size={24} />
                   <span className="text-[10px] font-black uppercase tracking-widest">Call Us</span>
                 </a>
-                <a href={WHATSAPP_LINK} className="flex flex-col items-center gap-3 p-6 bg-lime-50 rounded-[2rem]">
-                  <MessageSquare className="text-lime-600" size={24} />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-lime-600">WhatsApp</span>
+                <a href={WHATSAPP_LINK} className="flex flex-col items-center gap-3 p-6 bg-yellow-50 rounded-[2rem]">
+                  <MessageSquare className="text-primary-yellow" size={24} />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-primary-yellow">WhatsApp</span>
                 </a>
               </div>
               <div className="flex justify-center gap-6">
-                <a href={FACEBOOK_LINK} className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-black hover:text-white transition-all">
+                <a href={FACEBOOK_LINK} className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-primary-blue hover:text-white transition-all">
                   <Globe size={20} />
                 </a>
-                <a href={INSTAGRAM_LINK} className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-black hover:text-white transition-all">
+                <a href={INSTAGRAM_LINK} className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-primary-blue hover:text-white transition-all">
                   <Globe size={20} />
                 </a>
               </div>

@@ -33,7 +33,7 @@ const TourPackages: React.FC = () => {
         {/* Hero Section */}
         <section className="px-4 md:px-8 mb-12">
           <div className="max-w-7xl mx-auto">
-            <div className="bg-black rounded-[2.5rem] p-8 md:p-16 relative overflow-hidden">
+            <div className="bg-primary-blue rounded-[2.5rem] p-8 md:p-16 relative overflow-hidden">
               <div className="absolute inset-0 opacity-20">
                 <img 
                   src="https://picsum.photos/seed/travel/1920/1080" 
@@ -46,7 +46,7 @@ const TourPackages: React.FC = () => {
                 <motion.span 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="inline-block bg-[#A3E635] text-black px-4 py-1.5 rounded-full text-[9px] font-black tracking-[0.3em] uppercase mb-4"
+                  className="inline-block bg-primary-yellow text-primary-blue px-4 py-1.5 rounded-full text-[9px] font-black tracking-[0.3em] uppercase mb-4"
                 >
                   Explore Jharkhand
                 </motion.span>
@@ -56,13 +56,13 @@ const TourPackages: React.FC = () => {
                   transition={{ delay: 0.1 }}
                   className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-none mb-4"
                 >
-                  Curated <span className="text-[#A3E635] italic">Tour Packages.</span>
+                  Curated <span className="text-primary-yellow italic">Tour Packages.</span>
                 </motion.h1>
                 <motion.p 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-gray-400 text-sm md:text-base font-medium max-w-xl"
+                  className="text-white/70 text-sm md:text-base font-medium max-w-xl"
                 >
                   Discover the hidden gems of Jharkhand with our specially crafted tour packages.
                 </motion.p>
@@ -76,7 +76,7 @@ const TourPackages: React.FC = () => {
           <div className="max-w-7xl mx-auto">
             {loading ? (
               <div className="text-center py-20">
-                <div className="w-12 h-12 border-4 border-[#A3E635] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="w-12 h-12 border-4 border-primary-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                 <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Loading adventures...</p>
               </div>
             ) : packages.length > 0 ? (
@@ -111,7 +111,7 @@ const TourPackages: React.FC = () => {
                       
                       <div className="p-10">
                         <div className="flex justify-between items-start mb-4">
-                          <h3 className="text-2xl font-black text-gray-900 tracking-tight group-hover:text-[#A3E635] transition-colors">{pkg.title}</h3>
+                          <h3 className="text-2xl font-black text-gray-900 tracking-tight group-hover:text-primary-blue transition-colors">{pkg.title}</h3>
                         </div>
                         <p className="text-gray-500 font-medium text-sm leading-relaxed mb-8 line-clamp-3">
                           {pkg.description}
@@ -123,7 +123,7 @@ const TourPackages: React.FC = () => {
                             <p className="text-3xl font-black text-gray-900 tracking-tighter">₹{pkg.price.toLocaleString()}</p>
                           </div>
                           <div
-                            className="w-14 h-14 bg-black text-[#A3E635] rounded-2xl flex items-center justify-center hover:bg-[#A3E635] hover:text-black transition-all shadow-xl group-hover:rotate-12"
+                            className="w-14 h-14 bg-primary-blue text-primary-yellow rounded-2xl flex items-center justify-center hover:bg-primary-yellow hover:text-primary-blue transition-all shadow-xl group-hover:rotate-12"
                           >
                             <ArrowRight size={24} />
                           </div>
@@ -146,27 +146,27 @@ const TourPackages: React.FC = () => {
         {/* CTA Section */}
         <section className="px-4 md:px-8 mt-32">
           <div className="max-w-7xl mx-auto">
-            <div className="bg-[#A3E635] rounded-[3rem] p-12 md:p-20 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden">
+            <div className="bg-primary-yellow rounded-[3rem] p-12 md:p-20 flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden">
               <div className="relative z-10">
-                <h2 className="text-4xl md:text-6xl font-black text-black tracking-tighter leading-none mb-6">
+                <h2 className="text-4xl md:text-6xl font-black text-primary-blue tracking-tighter leading-none mb-6">
                   Want a Custom <br/>
                   <span className="opacity-50 italic">Itinerary?</span>
                 </h2>
-                <p className="text-black/60 font-bold text-lg max-w-md">
+                <p className="text-primary-blue/60 font-bold text-lg max-w-md">
                   Tell us where you want to go and we'll plan the perfect trip for you and your family.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 relative z-10">
                 <a 
                   href={`tel:${CONTACT_PHONE}`}
-                  className="bg-black text-white px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center gap-3 shadow-2xl hover:scale-105 transition-all"
+                  className="bg-primary-blue text-primary-yellow px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center gap-3 shadow-2xl hover:scale-105 transition-all"
                 >
                   <Phone size={20} />
                   Call Expert
                 </a>
                 <a 
                   href={WHATSAPP_LINK}
-                  className="bg-white text-black px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center gap-3 shadow-2xl hover:scale-105 transition-all"
+                  className="bg-white text-primary-blue px-10 py-6 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center gap-3 shadow-2xl hover:scale-105 transition-all"
                 >
                   WhatsApp Us
                 </a>

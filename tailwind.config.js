@@ -8,8 +8,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        'primary-lime': '#A3E635',
-        'primary-dark': '#65A30D',
+        'primary-blue': '#003865',
+        'primary-yellow': '#F5A623',
+        'primary-dark': '#00284d',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
